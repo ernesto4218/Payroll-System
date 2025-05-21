@@ -1,0 +1,21 @@
+{
+  "name": "animal-voice-recognition",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "devcss": "npx @tailwindcss/cli -i .public/css/input.css -o ./public/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.7",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "tailwindcss": "^4.1.7"
+  },
+  "type": "module"
+}
