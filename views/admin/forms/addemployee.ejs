@@ -1,0 +1,100 @@
+<!-- form -->
+<div id="addemployeeformparent" class="z-10 hidden backdrop-brightness-80 backdrop-blur-sm fixed w-full h-full items-center justify-center">
+    <form id="addemployeeform" class="w-[500px] bg-white rounded-3xl p-6">
+        <div class="flex flex-row items-center justify-between mb-4">
+            <div class="flex flex-row gap-2 items-center justify-start">
+                <svg class="shrink-0 w-6 h-6 text-black transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M136 192C136 125.7 189.7 72 256 72C322.3 72 376 125.7 376 192C376 258.3 322.3 312 256 312C189.7 312 136 258.3 136 192zM48 546.3C48 447.8 127.8 368 226.3 368L285.7 368C384.2 368 464 447.8 464 546.3C464 562.7 450.7 576 434.3 576L77.7 576C61.3 576 48 562.7 48 546.3zM544 160C557.3 160 568 170.7 568 184L568 232L616 232C629.3 232 640 242.7 640 256C640 269.3 629.3 280 616 280L568 280L568 328C568 341.3 557.3 352 544 352C530.7 352 520 341.3 520 328L520 280L472 280C458.7 280 448 269.3 448 256C448 242.7 458.7 232 472 232L520 232L520 184C520 170.7 530.7 160 544 160z"/></svg>
+                <p class="text-black font-semibold text-xl">Add Employee</p>
+            </div>
+            
+            <svg id="closeaddemployeeform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 h-10 mr-4 p-3 text-black hover:bg-gray-300 rounded-xl cursor-pointer" fill="currentColor"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+        </div>
+
+        <p class="text-sm font-semibold text-gray-700">Biometric Information</p>
+        <div class="w-full my-2 flex flex-row gap-2">
+            <div class="w-full mb-3">
+                <label for="B_ID" class="block mb-2 text-xs font-medium text-gray-900">Employee ID</label>
+                <input name="B_ID" type="number" id="B_ID" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="123" required/>
+            </div>
+            <div class="w-full">
+                <label for="B_Name" class="block mb-2 text-xs font-medium text-gray-900">Biometric Name</label>
+                <input name="B_Name" type="text" id="B_Name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="jhon doe" required/>
+            </div>
+        </div>
+        
+        <p class="text-sm font-semibold text-gray-700">Employee Information</p>
+        <div class="w-full my-2 flex flex-row gap-2">
+            <div class="w-full">
+                <label for="First_name" class="block mb-2 text-xs font-medium text-gray-900">First Name</label>
+                <input name="First_name" type="text" id="First_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="jhon" required/>
+            </div>
+            <div class="w-full">
+                <label for="Middle_name" class="block mb-2 text-xs font-medium text-gray-900">Middle Name</label>
+                <input name="Middle_name" type="text" id="Middle_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="doe" required/>
+            </div>
+            <div class="w-full">
+                <label for="Last_name" class="block mb-2 text-xs font-medium text-gray-900">Last Name</label>
+                <input name="Last_name" type="text" id="Last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="jhon doe" required/>
+            </div>
+        </div>
+        <div class="w-full my-4 flex flex-row gap-2 mb-4">
+            <div class="flex w-full">
+                <div class="flex items-center h-5">
+                    <input id="full-time" name="employment-type" type="radio" value="full-time" required
+                        class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 focus:ring-emerald-500">
+                </div>
+                <div class="ms-2 text-xs">
+                    <label for="full-time" class="font-medium text-gray-900">Full Time</label>
+                    <p class="text-xs font-normal text-gray-500">Contract Of Service</p>
+                </div>
+            </div>
+
+            <div class="flex w-full">
+                <div class="flex items-center h-5">
+                    <input id="part-time" name="employment-type" type="radio" value="part-time"
+                        class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 focus:ring-emerald-500">
+                </div>
+                <div class="ms-2 text-xs">
+                    <label for="part-time" class="font-medium text-gray-900">Part Time</label>
+                    <p class="text-xs font-normal text-gray-500">Contract Of Service</p>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="Monthly_salary" class="hidden w-full mb-3">
+            <label for="Monthly_salary_input" class="block mb-2 text-xs font-medium text-gray-900">Monthly Salary</label>
+            <input name="Monthly_salary_input" type="number" id="Monthly_salary_input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="123"/>
+        </div>
+
+        <div id="Hourly_salary" class="hidden w-full mb-3">
+            <label for="Hourly_salary_input" class="block mb-2 text-xs font-medium text-gray-900">Hourly Salary</label>
+            <input name="Hourly_salary_input" type="number" id="Hourly_salary_input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="123"/>
+        </div>
+        
+        <div class="w-full">
+            <label for="Designation" class="block mb-2 text-xs font-medium text-gray-900">Designation</label>
+            <input name="designation" type="text" id="Designation" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="Instructor" required/>
+        </div>
+        
+        <p class="text-sm font-semibold text-gray-700 mt-4">Insurance & Benefits</p>
+        <div class="w-full mt-2">
+            <label for="sss_monthly" class="block mb-2 text-xs font-medium text-gray-900">SSS</label>
+            <input name="sss_monthly" type="number" id="sss_monthly" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="500" required/>
+        </div>
+        <div class="w-full mt-2">
+            <label for="microdev_monthly" class="block mb-2 text-xs font-medium text-gray-900">Microdev</label>
+            <input name="microdev_monthly" type="number" id="microdev_monthly" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="500" required/>
+        </div>
+        
+        <div class="flex flex-row w-full mt-4">
+            <button type="submit" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex items-center justify-center">
+                Submit
+                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </button>
+        </div>
+        
+    </form>
+</div>

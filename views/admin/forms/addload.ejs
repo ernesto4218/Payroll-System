@@ -1,0 +1,112 @@
+<!-- form -->
+<div id="addloadformparent" class="z-10 hidden backdrop-brightness-80 backdrop-blur-sm fixed w-full h-full items-center justify-center">
+    <form id="addloadform" class="w-[500px] bg-white rounded-3xl p-6">
+        <div class="flex flex-row items-center justify-between mb-4">
+            <div class="flex flex-row gap-2 items-center justify-start">
+                <svg class="shrink-0 w-6 h-6 text-black transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M136 192C136 125.7 189.7 72 256 72C322.3 72 376 125.7 376 192C376 258.3 322.3 312 256 312C189.7 312 136 258.3 136 192zM48 546.3C48 447.8 127.8 368 226.3 368L285.7 368C384.2 368 464 447.8 464 546.3C464 562.7 450.7 576 434.3 576L77.7 576C61.3 576 48 562.7 48 546.3zM544 160C557.3 160 568 170.7 568 184L568 232L616 232C629.3 232 640 242.7 640 256C640 269.3 629.3 280 616 280L568 280L568 328C568 341.3 557.3 352 544 352C530.7 352 520 341.3 520 328L520 280L472 280C458.7 280 448 269.3 448 256C448 242.7 458.7 232 472 232L520 232L520 184C520 170.7 530.7 160 544 160z"/></svg>
+                <p class="text-black font-semibold text-xl">Add faculty load</p>
+            </div>
+            
+            <svg id="closeaddloadform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 h-10 mr-4 p-3 text-black hover:bg-gray-300 rounded-xl cursor-pointer" fill="currentColor"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+        </div>
+
+        <div class="w-full my-2 flex flex-row gap-2">
+            <div class="w-full mb-3">
+                <label for="employee_id" class="block mb-2 text-xs font-medium text-gray-900">Select Instructor</label>
+                <select name="employee_id" id="employee_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" required>
+                    <option selected disabled>Choose</option>
+                    <% employees.forEach(employee => { %>
+                        <% if (employee.type === 'part-time') { %>
+                            <option value="<%= employee.id %>"><%= employee.first_name + " " + employee.last_name %></option>
+                        <% } %>
+                    <% }) %>
+                </select>
+            </div>
+        </div>
+
+        <div class="w-full my-2 flex flex-row gap-2">
+            <div class="w-full mb-3">
+                <label for="sub_id" class="block mb-2 text-xs font-medium text-gray-900">Select Subject</label>
+                <select name="sub_id" id="sub_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" required>
+                    <option selected disabled>Choose</option>
+                    <% subjects.forEach(subject => { %>
+                        <option value="<%= subject.id %>"><%= subject.code %> | <%= subject.description %></option>
+                    <% }) %>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex flex-row w-full gap-2">
+            <div class="w-full flex flex-col">
+                <h3 class="block mb-2 text-xs font-medium text-gray-900">Schedule</h3>
+                <ul class="w-48 text-sm font-medium text-gray-900 bg-gray-50 border border-gray-300 rounded-lg">
+                    <li class="w-full border-b border-gray-200 rounded-t-lg p-2">
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="SUN" value="SUN" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Sunday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="MON" value="MON" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Monday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="TUE" value="TUE" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Tuesday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="WED" value="WED" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Wednesday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="THU" value="THU" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Thursday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="FRI" value="FRI" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Friday</label>
+                        </div>
+                        <div class="flex items-center ps-3">
+                            <input id="vue-checkbox" type="checkbox" name="SAT" value="SAT" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500">
+                            <label for="vue-checkbox" class="w-full py-2 ms-2 text-xs font-normal text-gray-900">Saturday</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="w-full flex">
+                <div class="w-full flex flex-col gap-2">
+                    <div class="">
+                        <label for="starttime" class="block mb-2 text-xs font-medium text-gray-900">Start time:</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <input type="time" id="starttime" name="starttime" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" min="07:00" max="22:00" value="07:00" required />
+                        </div>
+                    </div>
+                    <div class="">
+                        <label for="endtime" class="block mb-2 text-xs font-medium text-gray-900">End time:</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <input type="time" id="endtime" name="endtime" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" min="07:00" max="22:00" value="22:00" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-row w-full mt-4">
+            <button type="submit" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex items-center justify-center">
+                Submit
+                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </button>
+        </div>
+        
+    </form>
+</div>

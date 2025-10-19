@@ -1,10 +1,10 @@
 {
-  "name": "template",
+  "name": "payroll",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "devcss": "npx @tailwindcss/cli -i .public/css/input.css -o ./public/css/output.css --watch"
+    "devcss": "npx @tailwindcss/cli -i public/css/input.css -o public/css/output.css --watch"
   },
   "keywords": [],
   "author": "",
@@ -12,10 +12,20 @@
   "description": "",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.7",
+    "bcrypt": "^6.0.0",
+    "canvas": "^3.1.2",
+    "cookie-parser": "^1.4.7",
+    "dayjs": "^1.11.18",
+    "decimal.js": "^10.6.0",
+    "dotenv": "^17.2.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.3",
     "nodemon": "^3.1.10",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "xlsx": "^0.18.5"
   },
   "type": "module"
 }

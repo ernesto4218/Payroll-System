@@ -1,0 +1,125 @@
+<!-- form -->
+<div id="viewdtrformparent" class="z-10 hidden backdrop-brightness-80 backdrop-blur-sm fixed w-full h-full items-center justify-center">
+    <div class="w-[90%] bg-white rounded-2xl h-[90%] overflow-y-auto">
+        <div class="flex w-full justify-between pl-4 items-center border-b border-gray-400 p-2">
+            <div class="flex flex-row gap-2 items-center justify-start">
+                <form id="monthForm" class="flex flex-row gap-2 items-center w-70">
+                    <label for="monthselector" class="block text-sm font-medium text-gray-900">Select month</label>
+                    <select id="monthselector" name="month" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1 pl-2">
+                        <option value="" selected>Choose</option>
+                        <% dtrmonths.forEach(month => { %>
+                        <option value="<%= month.month_year %>"><%= month.month_year %></option>
+                        <% }) %>
+                    </select>
+                </form>
+            </div>
+            <svg id="closedtrform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 h-10 mr-4 p-3 text-black hover:bg-gray-300 rounded-xl cursor-pointer" fill="currentColor"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+        </div>
+        <div class="flex flex-row">
+            <div id="gendtr" class="w-[50%] p-10">
+                <p class="text-xs font-normal text-black mb-10">Civil Service Form No. 48</p>
+                <p class="text-sm font-bold text-black text-center">DAILY TIME RECORD</p>
+                <div class="mt-4 flex flex-col gap-2">
+                    <div class="flex flex-row gap-2">
+                        <p class="text-xs font-normal text-black">Name:</p>
+                        <p id="dtrnametxt" class="w-full pb-1 border-b border-black text-xs font-bold text-black">LAST NAME, FIRST NAME, MIDDLE</p>
+                    </div>
+                    <div class="flex flex-row gap-2">
+                        <p class="text-xs font-normal text-black">Period:</p>
+                        <p id="selectedperiodtxt" class="w-full pb-1 border-b border-black text-xs font-normal text-black">File selected period</p>
+                    </div>
+                    <div class="flex flex-row gap-2 w-full items-center">
+                        <p class="text-xs font-normal text-black flex-shrink-0">Official Hours:</p>
+                        <div class="flex-1 text-xs whitespace-nowrap">
+                            8:00 AM - 12:00 PM 1:00 PM - 5:00 PM
+                        </div>
+                    </div>
+
+                </div>
+
+                <table class="w-full border-collapse text-xs mt-5 table-fixed">
+                    <thead>
+                        <tr>
+                            <!-- Day column -->
+                            <th class="w-12 border-2 border-black px-1 py-1" rowspan="2">Day</th>
+
+                            <!-- A.M. header spanning 2 sub-columns -->
+                            <th class="border-2 w-30 border-black px-1 py-1 text-center" colspan="2">A. M.</th>
+
+                            <!-- P.M. header spanning 2 sub-columns -->
+                            <th class="border-2 w-30 border-black px-1 py-1 text-center" colspan="2">P. M.</th>
+
+                            <!-- UNDERTIME header spanning 2 sub-columns -->
+                            <th class="w-20 border-2 border-black px-1 py-1 text-center" colspan="2">UNDERTIME</th>
+                            </tr>
+                            <tr>
+                            <!-- A.M. sub-headers -->
+                            <th class="border-2 border-black px-1 py-0.5 text-center text-[10px] font-normal">IN</th>
+                            <th class="border-2 border-black px-1 py-0.5 text-center text-[10px] font-normal">OUT</th>
+
+                            <!-- P.M. sub-headers -->
+                            <th class="border-2 border-black px-1 py-0.5 text-center text-[10px] font-normal">IN</th>
+                            <th class="border-2 border-black px-1 py-0.5 text-center text-[10px] font-normal">OUT</th>
+
+                            <!-- UNDERTIME sub-headers -->
+                            <th class="py-0.5 text-center font-normal px-1 border-2 border-black text-[10px]" colspan="2">
+                                Hours:Minutes
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="dtrtable">
+                        <tr>
+                            <td class="border-b-2 border-black text-center px-1 py-1">1</td>
+                            <td class="border-b-2 border-black text-center px-1 py-1">8:00</td>
+                            <td class="border-b-2 border-black text-center px-1 py-1">12:00</td>
+                            <td class="border-b-2 border-black text-center px-1 py-1">1:00</td>
+                            <td class="border-b-2 border-black text-center px-1 py-1">5:00</td>
+                            <td class="border-b-2 border-black text-center px-1 py-1" colspan="2">00:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="mt-4">
+                    <p class="text-center text-[10px] font-normal">I certify on my honor that the above is a true and correct report of the hours of work performed, record of wich was made daily at the time of arrival and departure from office.</p>
+                </div>
+
+                <div class="w-full justify-center flex flex-col items-center mt-10">
+                    <div class="border-t-2 border-black w-[70%]">
+                        <div class="pt-0.5 text-center text-[11px] font-medium mt-0.5">
+                            Verified as to the prescribed office hours
+                        </div>
+                    </div>
+                    
+                    <div class="border-t-2 border-black w-[70%] mt-10">
+                        <div class="pt-0.5 text-center text-[11px] font-medium mt-0.5">
+                            In Charge
+                        </div>
+                    </div>
+
+                    <div class=" w-[70%] mt-10">
+                        <p class="text-sm font-semibold text-center">JEHUEL NATHAN R. DACULIO, Phd</p>
+                        <div class="border-t-2 border-black">
+                            <div class="pt-0.5 text-center text-[11px] font-medium mt-0.5">
+                                ZDSPGC PAGADIAN CAMPUS DEAN
+                            </div>
+                        </div>
+
+                        <div class="border-blue-500 border flex flex-col items-center justify-center p-2 mt-10">
+                            <p class="text-[10px] font-normal text-blue-500 text-center">This printout is a true copy of the daily time record generated from the computerized biometric system.</p>
+                            <div class="border-t border-blue-500 w-[70%] mt-7">
+                                <div class="pt-0.5 text-center text-[11px] font-normal mt-0.5 text-blue-500">
+                                    Authorized Signature
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div id="dtrduplicate" class="w-[50%] p-10">
+
+            </div>
+        </div>
+    </div>
+</div>

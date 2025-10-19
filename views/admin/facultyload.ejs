@@ -1,0 +1,96 @@
+<div class="p-5 max-w-screen h-full bg-gray-100 rounded-tl-4xl relative overflow-x-hidden overflow-y-auto flex-col flex">
+    <div class="flex flex-row gap-4 h-full">
+        <div class="flex w-[69%] h-full">
+            <table class="w-fit" id="search-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <span class="flex items-center">
+                                NO.
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                ID
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center w-60">
+                                Description
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center w-40">
+                                Instructor
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center w-60">
+                                Schedule
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Action
+                            </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% loads.forEach(load => { %>
+                        <tr>
+                            <td><%= load.id %></td>
+                            <td><%= load.subject_code %></td>
+                            <td><%= load.subject_description %></td>
+                            <td><%= load.first_name + " " + load.last_name %></td>
+                            <td><%= (load.days || "") + " | " + load.start_time + " - " + load.end_time %></td>
+                            <td>
+                                <div class="flex flex-row">
+                                    <span data-id="<%= load.id %>" class="deleteloadbtn bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">Delete</span>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+
+            </table>
+        </div>
+        
+        <div class="flex w-[30%] h-full p-2">
+            <div class="w-full h-full bg-white rounded-2xl p-4">
+                <p class="text-xs font-semibold">Subjects</p>
+                <div class="flex flex-col gap-2 overflow-y-auto h-full">
+                    <% if (subjects) { %>
+                        <% subjects.forEach(subject => { %>
+                            <div class="flex flex-row items-center justify-between w-full border-b border-gray-200 mt-2 p-2">
+                                <div>
+                                    <p class="text-xs font-medium"><%= subject.code %></p>
+                                    <p class="text-xs font-normal text-gray-600"><%= subject.description %></p>
+                                </div>
+                                <div>
+                                    <span data-id="<%= subject.id %>" class="deletesubbtn bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">Delete</span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

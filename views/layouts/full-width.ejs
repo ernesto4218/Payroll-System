@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="h-screen w-screen">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/output.css">
+
+    <% if (path === '/admin/employees' || path === '/admin/uploads' || path === '/admin/payroll' || path === '/admin/payroll-part-time' || path === '/admin/facultyload') { %>
+        <link href="/flowbite/min.css" rel="stylesheet" />
+    <% } %>
+    <% if (path === '/admin/calendar') { %>
+        <link href="/flowbite/min.css" rel="stylesheet" />
+        <script src="/js/components/calendar.js"></script>
+    <% } %>
+    <% if (path === '/admin/payroll') { %>
+        <script src="/js/components/html2canvas.min.js"></script>
+        <script src="/js/components/jspdf.umd.min.js"></script>
+    <% } %>
+
+    <% if (path === '/admin/dashboard') { %>
+        <link href="/flowbite/min.css" rel="stylesheet" />
+    <% } %>
+    <title><%- title %></title>
+</head>
+<body>
+    <div class="wrapper w-screen h-screen bg-white overflow-hidden">
+        <main class="w-full h-full flex flex-row relative">
+            <!-- toasts  -->
+            <%- include('../global/partials/toasts') %>
+            <%- include('../global/partials/deletemodal') %>
+            
+            <% if (path === '/login') { %>
+                <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                    <%- include('../global/partials/topbar') %>
+                    <%- include('../global/login') %>
+                </div>
+
+                <script src="/js/login.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/dashboard') { %>
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/dashboard') %>
+                    </div>
+                </div>
+                <script src="/flowbite/apexcharts.min.js"></script>
+                <script src="/flowbite/flowbite.min.js"></script>
+                <script src="/js/admin/dashboard.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/payroll') { %>
+                <%- include('../admin/forms/releasefulltime') %>
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/payroll') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/flowbite/simple-datatables.js"></script>
+                <script src="/js/admin/payroll.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/payroll-part-time') { %>
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/payroll_parttime') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/flowbite/simple-datatables.js"></script>
+                <script src="/js/admin/payroll-part-time.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/employees') { %>
+                <%- include('../admin/forms/addemployee') %>
+                <%- include('../admin/forms/editemployee') %>
+                <%- include('../admin/forms/records') %>
+                <%- include('../admin/forms/viewdtr') %>
+                <%- include('../admin/forms/editdtr') %>
+                <%- include('../admin/forms/travelorder') %>
+
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/employees') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/flowbite/simple-datatables.js"></script>
+                <script src="/js/admin/employees.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/facultyload') { %>
+                <%- include('../admin/forms/addsubject') %>
+                <%- include('../admin/forms/addload') %>
+
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/facultyload') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/flowbite/simple-datatables.js"></script>
+                <script src="/js/admin/facultyload.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/uploads') { %>
+                <%- include('../admin/forms/fileupload') %>
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/uploads') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/flowbite/simple-datatables.js"></script>
+                <script src="/js/admin/uploads.js"></script>
+            <% } %>
+
+            <% if (path === '/admin/calendar') { %>
+                <%- include('../admin/forms/addevent') %>
+                <div class="flex w-full h-full flex-row">
+                    <%- include('../admin/partials/sidebar') %>
+                    <div class="flex flex-col w-screen h-screen overflow-y-auto">
+                        <%- include('../admin/partials/topbar') %>
+                        <%- include('../admin/calendar') %>
+                    </div>
+                </div>
+                <script src="/flowbite/min.js"></script>
+                <script src="/js/admin/calendar.js"></script>
+            <% } %>
+        </main>
+    </div>
+</body>
+</html>

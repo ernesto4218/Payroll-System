@@ -1,0 +1,165 @@
+<div class="p-5 max-w-screen h-full bg-gray-100 rounded-tl-4xl overflow-x-hidden overflow-y-auto flex-col flex">
+    <div class="flex flex-row justify-start flex-wrap gap-2">
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 80C377.4 80 424 126.6 424 184C424 241.4 377.4 288 320 288C262.6 288 216 241.4 216 184C216 126.6 262.6 80 320 80zM96 152C135.8 152 168 184.2 168 224C168 263.8 135.8 296 96 296C56.2 296 24 263.8 24 224C24 184.2 56.2 152 96 152zM0 480C0 409.3 57.3 352 128 352C140.8 352 153.2 353.9 164.9 357.4C132 394.2 112 442.8 112 496L112 512C112 523.4 114.4 534.2 118.7 544L32 544C14.3 544 0 529.7 0 512L0 480zM521.3 544C525.6 534.2 528 523.4 528 512L528 496C528 442.8 508 394.2 475.1 357.4C486.8 353.9 499.2 352 512 352C582.7 352 640 409.3 640 480L640 512C640 529.7 625.7 544 608 544L521.3 544zM472 224C472 184.2 504.2 152 544 152C583.8 152 616 184.2 616 224C616 263.8 583.8 296 544 296C504.2 296 472 263.8 472 224zM160 496C160 407.6 231.6 336 320 336C408.4 336 480 407.6 480 496L480 512C480 529.7 465.7 544 448 544L192 544C174.3 544 160 529.7 160 512L160 496z"/></svg>
+            <p class="text-black text-2xl font-semibold"><%= locals.employees ?? 0 %></p>
+            <p class="text-gray-400 text-[10px] font-medium">Total Employees</p>
+        </div>
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 80C377.4 80 424 126.6 424 184C424 241.4 377.4 288 320 288C262.6 288 216 241.4 216 184C216 126.6 262.6 80 320 80zM96 152C135.8 152 168 184.2 168 224C168 263.8 135.8 296 96 296C56.2 296 24 263.8 24 224C24 184.2 56.2 152 96 152zM0 480C0 409.3 57.3 352 128 352C140.8 352 153.2 353.9 164.9 357.4C132 394.2 112 442.8 112 496L112 512C112 523.4 114.4 534.2 118.7 544L32 544C14.3 544 0 529.7 0 512L0 480zM521.3 544C525.6 534.2 528 523.4 528 512L528 496C528 442.8 508 394.2 475.1 357.4C486.8 353.9 499.2 352 512 352C582.7 352 640 409.3 640 480L640 512C640 529.7 625.7 544 608 544L521.3 544zM472 224C472 184.2 504.2 152 544 152C583.8 152 616 184.2 616 224C616 263.8 583.8 296 544 296C504.2 296 472 263.8 472 224zM160 496C160 407.6 231.6 336 320 336C408.4 336 480 407.6 480 496L480 512C480 529.7 465.7 544 448 544L192 544C174.3 544 160 529.7 160 512L160 496z"/></svg>
+            <p class="text-black text-2xl font-semibold"><%= locals.fulltime ?? 0 %></p>
+            <p class="text-gray-400 text-[10px] font-medium">Full time</p>
+        </div>
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 80C377.4 80 424 126.6 424 184C424 241.4 377.4 288 320 288C262.6 288 216 241.4 216 184C216 126.6 262.6 80 320 80zM96 152C135.8 152 168 184.2 168 224C168 263.8 135.8 296 96 296C56.2 296 24 263.8 24 224C24 184.2 56.2 152 96 152zM0 480C0 409.3 57.3 352 128 352C140.8 352 153.2 353.9 164.9 357.4C132 394.2 112 442.8 112 496L112 512C112 523.4 114.4 534.2 118.7 544L32 544C14.3 544 0 529.7 0 512L0 480zM521.3 544C525.6 534.2 528 523.4 528 512L528 496C528 442.8 508 394.2 475.1 357.4C486.8 353.9 499.2 352 512 352C582.7 352 640 409.3 640 480L640 512C640 529.7 625.7 544 608 544L521.3 544zM472 224C472 184.2 504.2 152 544 152C583.8 152 616 184.2 616 224C616 263.8 583.8 296 544 296C504.2 296 472 263.8 472 224zM160 496C160 407.6 231.6 336 320 336C408.4 336 480 407.6 480 496L480 512C480 529.7 465.7 544 448 544L192 544C174.3 544 160 529.7 160 512L160 496z"/></svg>
+            <p class="text-black text-2xl font-semibold"><%= locals.parttime ?? 0 %></p>
+            <p class="text-gray-400 text-[10px] font-medium">Part time</p>
+        </div>
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 96C156.7 96 128 124.7 128 160L128 384C128 419.3 156.7 448 192 448L544 448C579.3 448 608 419.3 608 384L608 160C608 124.7 579.3 96 544 96L192 96zM368 192C412.2 192 448 227.8 448 272C448 316.2 412.2 352 368 352C323.8 352 288 316.2 288 272C288 227.8 323.8 192 368 192zM192 216L192 168C192 163.6 195.6 160 200 160L248 160C252.4 160 256.1 163.6 255.5 168C251.9 197 228.9 219.9 200 223.5C195.6 224 192 220.4 192 216zM192 328C192 323.6 195.6 319.9 200 320.5C229 324.1 251.9 347.1 255.5 376C256 380.4 252.4 384 248 384L200 384C195.6 384 192 380.4 192 376L192 328zM536 223.5C507 219.9 484.1 196.9 480.5 168C480 163.6 483.6 160 488 160L536 160C540.4 160 544 163.6 544 168L544 216C544 220.4 540.4 224.1 536 223.5zM544 328L544 376C544 380.4 540.4 384 536 384L488 384C483.6 384 479.9 380.4 480.5 376C484.1 347 507.1 324.1 536 320.5C540.4 320 544 323.6 544 328zM80 216C80 202.7 69.3 192 56 192C42.7 192 32 202.7 32 216L32 480C32 515.3 60.7 544 96 544L488 544C501.3 544 512 533.3 512 520C512 506.7 501.3 496 488 496L96 496C87.2 496 80 488.8 80 480L80 216z"/></svg>
+            <p class="totalcostfulltime text-black text-2xl font-semibold">0</p>
+            <p class="text-gray-400 text-[10px] font-medium">Total Payroll Cost <span class="font-normal">(full-time)</span></p>
+        </div>
+
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 96C156.7 96 128 124.7 128 160L128 384C128 419.3 156.7 448 192 448L544 448C579.3 448 608 419.3 608 384L608 160C608 124.7 579.3 96 544 96L192 96zM368 192C412.2 192 448 227.8 448 272C448 316.2 412.2 352 368 352C323.8 352 288 316.2 288 272C288 227.8 323.8 192 368 192zM192 216L192 168C192 163.6 195.6 160 200 160L248 160C252.4 160 256.1 163.6 255.5 168C251.9 197 228.9 219.9 200 223.5C195.6 224 192 220.4 192 216zM192 328C192 323.6 195.6 319.9 200 320.5C229 324.1 251.9 347.1 255.5 376C256 380.4 252.4 384 248 384L200 384C195.6 384 192 380.4 192 376L192 328zM536 223.5C507 219.9 484.1 196.9 480.5 168C480 163.6 483.6 160 488 160L536 160C540.4 160 544 163.6 544 168L544 216C544 220.4 540.4 224.1 536 223.5zM544 328L544 376C544 380.4 540.4 384 536 384L488 384C483.6 384 479.9 380.4 480.5 376C484.1 347 507.1 324.1 536 320.5C540.4 320 544 323.6 544 328zM80 216C80 202.7 69.3 192 56 192C42.7 192 32 202.7 32 216L32 480C32 515.3 60.7 544 96 544L488 544C501.3 544 512 533.3 512 520C512 506.7 501.3 496 488 496L96 496C87.2 496 80 488.8 80 480L80 216z"/></svg>
+            <p class="text-black text-2xl font-semibold">0</p>
+            <p class="text-gray-400 text-[10px] font-medium">Total Payroll Cost <span class="font-normal">(part-time)</span></p>
+        </div>
+
+        <div class="w-45 max-w-45 bg-white border border-gray-200 rounded-xl flex flex-col p-3">
+            <svg class="w-5 h-5 fill-emerald-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M224 64C206.3 64 192 78.3 192 96L192 128L160 128C124.7 128 96 156.7 96 192L96 240L544 240L544 192C544 156.7 515.3 128 480 128L448 128L448 96C448 78.3 433.7 64 416 64C398.3 64 384 78.3 384 96L384 128L256 128L256 96C256 78.3 241.7 64 224 64zM96 288L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 288L96 288z"/></svg>
+            <p class="text-black text-2xl font-semibold"><%= locals.eventsthismonthnum ?? 0 %></p>
+            <p class="text-gray-400 text-[10px] font-medium">Events <span class="font-normal">(this month)</span></p>
+        </div>
+    </div>
+    <div class="flex flex-row justify-between flex-wrap mt-6">
+        <div class="flex w-[49%] max-h-[440px]">
+            <div class="w-full bg-white rounded-lg shadow-sm p-4">
+                <div class="flex flex-row gap-2">
+                    <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center me-3">
+                        <svg class="w-6 h-6 text-gray-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M31 169C21.6 159.6 21.6 144.4 31 135.1L103 63C112.4 53.6 127.6 53.6 136.9 63C146.2 72.4 146.3 87.6 136.9 96.9L105.9 127.9L173.6 127.9L173.6 127.9L511.9 127.9C547.2 127.9 575.9 156.6 575.9 191.9L575.9 370.1L570.8 365C542.7 336.9 497.1 336.9 469 365C441.8 392.2 440.9 435.6 466.2 463.9L533.9 463.9L502.9 432.9C493.5 423.5 493.5 408.3 502.9 399C512.3 389.7 527.5 389.6 536.8 399L608.8 471C618.2 480.4 618.2 495.6 608.8 504.9L536.8 576.9C527.4 586.3 512.2 586.3 502.9 576.9C493.6 567.5 493.5 552.3 502.9 543L533.9 512L127.8 512C92.5 512 63.8 483.3 63.8 448L63.8 269.8L68.9 274.9C97 303 142.6 303 170.7 274.9C197.9 247.7 198.8 204.3 173.5 176L105.8 176L136.8 207C146.2 216.4 146.2 231.6 136.8 240.9C127.4 250.2 112.2 250.3 102.9 240.9L31 169zM416 320C416 267 373 224 320 224C267 224 224 267 224 320C224 373 267 416 320 416C373 416 416 373 416 320zM504 255.5C508.4 256 512 252.4 512 248L512 200C512 195.6 508.4 192 504 192L456 192C451.6 192 447.9 195.6 448.5 200C452.1 229 475.1 251.9 504 255.5zM136 384.5C131.6 384 128 387.6 128 392L128 440C128 444.4 131.6 448 136 448L184 448C188.4 448 192.1 444.4 191.5 440C187.9 411 164.9 388.1 136 384.5z"/></svg>
+                    </div>
+
+                    <div>
+                        <h5 class="totalpayrollyear leading-none text-3xl font-bold text-gray-900 pb-2">32.4k</h5>
+                        <div class="flex flex-row gap-2">
+                            <p class="text-gray-500 text-sm font-normal me-1">Payroll this year</p>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md">
+                                Full-time
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div data-month_payroll="<%= JSON.stringify(monthlyPayroll) %>" id="yearlychart"></div>
+                <div class="grid grid-cols-1 items-center border-gray-200 border-t justify-between">
+                    <div class="flex justify-between items-center pt-5">                    
+                        <a
+                            href="/admin/payroll"
+                            class="uppercase text-sm font-semibold inline-flex items-center rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-gray-100 px-3 py-2">
+                            Payroll
+                            <svg class="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex h-full w-[49%] max-h-[440px]">
+            <div class="w-full bg-white rounded-lg shadow-sm p-4">
+                <div class="flex justify-between pb-4 mb-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center me-3">
+                        <svg class="w-6 h-6 text-gray-500 fill-current"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M544 72C544 58.7 533.3 48 520 48L418.2 48C404.9 48 394.2 58.7 394.2 72C394.2 85.3 404.9 96 418.2 96L462.1 96L350.8 207.3L255.7 125.8C246.7 118.1 233.5 118.1 224.5 125.8L112.5 221.8C102.4 230.4 101.3 245.6 109.9 255.6C118.5 265.6 133.7 266.8 143.7 258.2L240.1 175.6L336.5 258.2C346 266.4 360.2 265.8 369.1 256.9L496.1 129.9L496.1 173.8C496.1 187.1 506.8 197.8 520.1 197.8C533.4 197.8 544.1 187.1 544.1 173.8L544 72zM112 320C85.5 320 64 341.5 64 368L64 528C64 554.5 85.5 576 112 576L528 576C554.5 576 576 554.5 576 528L576 368C576 341.5 554.5 320 528 320L112 320zM159.3 376C155.9 396.1 140.1 412 119.9 415.4C115.5 416.1 111.9 412.5 111.9 408.1L111.9 376.1C111.9 371.7 115.5 368.1 119.9 368.1L151.9 368.1C156.3 368.1 160 371.7 159.2 376.1zM159.3 520.1C160 524.5 156.4 528.1 152 528.1L120 528.1C115.6 528.1 112 524.5 112 520.1L112 488.1C112 483.7 115.6 480 120 480.8C140.1 484.2 156 500 159.4 520.2zM520 480.7C524.4 480 528 483.6 528 488L528 520C528 524.4 524.4 528 520 528L488 528C483.6 528 479.9 524.4 480.7 520C484.1 499.9 499.9 484 520.1 480.6zM480.7 376C480 371.6 483.6 368 488 368L520 368C524.4 368 528 371.6 528 376L528 408C528 412.4 524.4 416.1 520 415.3C499.9 411.9 484 396.1 480.6 375.9zM256 448C256 412.7 284.7 384 320 384C355.3 384 384 412.7 384 448C384 483.3 355.3 512 320 512C284.7 512 256 483.3 256 448z"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="leading-none text-2xl font-bold text-gray-900 pb-1 totalmonthlycomparison">3.4k</h5>
+                        <dl class="flex items-center justify-end">
+                        <dt class="text-gray-500 text-sm font-normal me-1">Difference: </dt>
+                        <dd class="differnecetext text-gray-900 text-sm font-semibold"></dd>
+                    </dl>
+                    </div>
+                    </div>
+                    <div>
+                    <div id="percentBadge"></div>
+                    </div>
+                </div>
+
+                <div id="monthlyComparisonChart"></div>
+                <div class="h-fit grid grid-cols-1 items-center border-gray-200 border-t justify-between">
+                    <div class="h-fit flex justify-between items-center pt-5">
+                        <!-- Button -->
+                        <button
+                            id="dropdownDefaultButton"
+                            data-dropdown-toggle="lastDaysdropdown"
+                            data-dropdown-placement="bottom"
+                            class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900"
+                            type="button"
+                            >
+                            <span id="dropdownLabel">Current Month</span>
+                            <svg class="w-2.5 h-2.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            </svg>
+                        </button>
+
+
+                        <!-- Dropdown menu -->
+                        <div id="lastDaysdropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44">
+                            <ul id="monthComparisonList" class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
+                                <!-- JS will populate here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-between flex-wrap mt-6">
+        <div class="w-[49%] flex flex-col">
+            <p class="text-sm font-semibold text-gray-500 mb-2">All Events</p>
+            <div class="max-h-[400px] overflow-y-auto">
+                <% allevents.forEach(event => { %>
+                    <div class="w-full bg-white rounded-lg shadow-sm p-2 mb-2">
+                        <p class="text-xs font-semibold text-gray-500"><%= event.description %></p>
+                        <div class="flex flex-row gap-2 mt-2 items-center">
+                            <div class="flex flex-row gap-2 items-center">
+                                <p class="text-xs font-normal text-gray-600">From</p>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-sm"> <%= event.start %></span>
+                            </div>
+                            <svg class="w-3 h-3 fill-current text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M471.1 297.4C483.6 309.9 483.6 330.2 471.1 342.7L279.1 534.7C266.6 547.2 246.3 547.2 233.8 534.7C221.3 522.2 221.3 501.9 233.8 489.4L403.2 320L233.9 150.6C221.4 138.1 221.4 117.8 233.9 105.3C246.4 92.8 266.7 92.8 279.2 105.3L471.2 297.3z"/></svg>
+                            <div class="flex flex-row gap-2 items-center">
+                                <p class="text-xs font-normal text-gray-600">To</p>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-sm"> <%= event.end %></span>                        
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <div class="w-[49%] flex flex-col">
+            <p class="text-sm font-semibold text-gray-500 mb-2">Events this month</p>
+            <div class="max-h-[500px] overflow-y-auto">
+                <% eventsthismonth.forEach(event => { %>
+                    <div class="w-full bg-white rounded-lg shadow-sm p-2 mb-2">
+                        <p class="text-xs font-semibold text-gray-500"><%= event.description %></p>
+                        <div class="flex flex-row gap-2 mt-2 items-center">
+                            <div class="flex flex-row gap-2 items-center">
+                                <p class="text-xs font-normal text-gray-600">From</p>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-sm"> <%= event.start %></span>
+                            </div>
+                            <svg class="w-3 h-3 fill-current text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M471.1 297.4C483.6 309.9 483.6 330.2 471.1 342.7L279.1 534.7C266.6 547.2 246.3 547.2 233.8 534.7C221.3 522.2 221.3 501.9 233.8 489.4L403.2 320L233.9 150.6C221.4 138.1 221.4 117.8 233.9 105.3C246.4 92.8 266.7 92.8 279.2 105.3L471.2 297.3z"/></svg>
+                            <div class="flex flex-row gap-2 items-center">
+                                <p class="text-xs font-normal text-gray-600">To</p>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-sm"> <%= event.end %></span>                        
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            
+        </div>
+    </div>
+</div>

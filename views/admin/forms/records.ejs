@@ -1,0 +1,83 @@
+<!-- form -->
+<div id="recordsparent" class="z-10 hidden backdrop-brightness-80 backdrop-blur-sm fixed w-full h-full items-center justify-center">
+    <div class="w-[90%] h-[90%] bg-white rounded-2xl">
+        <div class="flex w-full justify-between pl-4 items-center border-b border-gray-400">
+            <form id="monthForm" class="flex flex-row gap-2 items-center w-70">
+                <label for="monthselectorrecords" class="block text-sm font-medium text-gray-900">Select month</label>
+                <select id="monthselectorrecords" name="month" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1 pl-2">
+                    <option value="" selected>Choose</option>
+                    <% dtrmonths.forEach(month => { %>
+                    <option value="<%= month.month_year %>"><%= month.month_year %></option>
+                    <% }) %>
+                </select>
+            </form>
+
+            <svg id="closerecordsform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 h-10 mr-4 p-3 text-black hover:bg-gray-300 rounded-xl cursor-pointer" fill="currentColor"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+        </div>
+
+        <div class="p-4 overflow-y-auto" id="table-record-container">
+            <table id="search-table-records">
+                <thead>
+                    <tr>
+                        <th>
+                            <span class="flex items-center">
+                                Day
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Morning Time In
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Morning Time Out
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Afternoon Time In
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Afternoon Time Out
+                                <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+                                </svg>
+                            </span>
+                        </th>
+                        <th>
+                            <span class="flex items-center">
+                                Action
+                            </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center"></td>
+                        <td class="text-center"></td>
+                        <td class="text-center"></td>
+                        <td class="text-center"></td>
+                        <td class="text-center"></td>
+                        <td class="text-center"></td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+<!-- form -->
+<div id="releasefulltimeparent" class="hidden z-10 backdrop-brightness-80 backdrop-blur-sm fixed w-full h-full items-center justify-center">
+    <div class="flex flex-col w-[98%] h-[98%] bg-white rounded-2xl">
+        <div class="p-3 flex flex-row items-center justify-between border-b border-b-gray-200">
+            <div class="flex flex-row gap-2 items-center">
+                <p class="text-xs font-semibold text-gray-600 ml-4">Full Time Employee Payroll</p>
+                <span id="printreleasefullbtn" class="cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm flex flex-row gap-2">
+                    <svg class="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M128 128C128 92.7 156.7 64 192 64L405.5 64C422.5 64 438.8 70.7 450.8 82.7L493.3 125.2C505.3 137.2 512 153.5 512 170.5L512 208L128 208L128 128zM64 320C64 284.7 92.7 256 128 256L512 256C547.3 256 576 284.7 576 320L576 416C576 433.7 561.7 448 544 448L512 448L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 448L96 448C78.3 448 64 433.7 64 416L64 320zM192 480L192 512L448 512L448 416L192 416L192 480zM520 336C520 322.7 509.3 312 496 312C482.7 312 472 322.7 472 336C472 349.3 482.7 360 496 360C509.3 360 520 349.3 520 336z"/></svg>
+                    Print</span>
+            </div>
+            <a id="closerealeaseparentbtn" href="#">
+                <svg class="w-4 h-4 fill-black mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M183.1 137.4C170.6 124.9 150.3 124.9 137.8 137.4C125.3 149.9 125.3 170.2 137.8 182.7L275.2 320L137.9 457.4C125.4 469.9 125.4 490.2 137.9 502.7C150.4 515.2 170.7 515.2 183.2 502.7L320.5 365.3L457.9 502.6C470.4 515.1 490.7 515.1 503.2 502.6C515.7 490.1 515.7 469.8 503.2 457.3L365.8 320L503.1 182.6C515.6 170.1 515.6 149.8 503.1 137.3C490.6 124.8 470.3 124.8 457.8 137.3L320.5 274.7L183.1 137.4z"/></svg>
+            </a>
+        </div>
+        <div id="payrollfullprint" class="bg-white flex flex-col items-center justify-center p-4 overflow-auto w-full h-full">
+            <div class="h-full w-full bg-white p-10">
+                <div class="flex flex-row items-center justify-between">
+                    <div>
+                        <img class="w-20 h-20" src="/img/Ph_seal_zamboanga_del_sur.png" alt="">
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase text-center">province of zamboanga del sur</p>
+                        <p class="text-xs font-medium uppercase text-center">zamboanga del sur provincial government college</p>
+                        <p class="text-xs font-bold uppercase text-center">pagadian campus</p>
+                    </div>
+                    <div>
+                        <img class="w-20 h-20" src="/img/zdspgc.jpeg" alt="">
+                    </div>
+                </div>
+                <div class="flex flex-col  mt-8">
+                    <div class="w-full border border-gray-200 p-1 flex flex-row items-center justify-between px-4">
+                        <p class="text-[10px] font-normal text-left w-[250px]">No. of Days: <span class="font-semibold">31</span></p>                    
+                        <p class="text-[10px] font-semibold text-center w-[250px]">PAYROLL</p>
+                        <p class="text-[10px] font-normal text-right w-[250px]">Period Covered: <span class="font-semibold">August 1-31 2025</span></p>
+                    </div>
+                    <table id="release_form_table" class="w-full table-fixed border-collapse bg-white">
+                        <thead class="bg-gray-100 sticky top-0">
+                            <tr class="text-[10px] text-left">
+                                <th class="px-3 py-1 border border-gray-200 w-[30px]">No.</th>
+                                <th class="px-3 py-1 border border-gray-200 w-[40px]">Emp No.</th>
+                                <th class="px-3 py-1 border border-gray-200 w-[150px]">Name</th>
+                                <th class="px-3 py-1 border border-gray-200 w-[100px]">COS</th>
+                                <th class="px-3 py-1 border border-gray-200 w-[100px]">Designation</th>
+                                <th class="px-3 py-1 border border-gray-200 w-[100px]">Monthly Salary</th>
+
+                                <!-- UNDERTIME -->
+                                <th class="px-3 py-1 border border-gray-200 text-center w-[100px]">
+                                    <div class="flex flex-col items-center">
+                                        <span>UNDERTIME</span>
+                                        <div class="text-[10px] text-gray-600 flex flex-row justify-between w-full">
+                                        <p class="w-1/2 text-center">H:M</p>
+                                        <p class="w-1/2 text-center">Amount</p>
+                                        </div>
+                                    </div>
+                                </th>
+
+                                <th class="px-3 py-1 border border-gray-200 w-[100px]">Gross This Period</th>
+
+                                <!-- Deductions single header, stacked -->
+                                <th class="px-3 py-1 border border-gray-200 text-center w-[150px]">
+                                    <div class="flex flex-col items-center">
+                                        <span>DEDUCTIONS</span>
+                                        <div class="text-[10px] text-gray-600 flex flex-row justify-between w-full">
+                                        <p class="w-1/3 text-center">SSS</p>
+                                        <p class="w-1/3 text-center">Pag-IBIG</p>
+                                        <p class="w-1/3 text-center">Microdev</p>
+                                        </div>
+                                    </div>
+                                </th>
+
+                                <th class="px-3 py-1 border border-gray-200 w-[100px]">Net This Period</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="text-[10px] text-left">
+                            <!-- Example static row -->
+                            
+                        </tbody>
+                    </table>
+
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
