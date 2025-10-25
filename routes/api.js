@@ -25,7 +25,8 @@ import {
   INSERT_FACULTY_LOAD,
   DELETE_FACULTY_LOAD_BY_ID,
   GET_ALL_FACULTY_LOADS,
-  GET_ALL_FACULTY_LOADS_BY_ID
+  GET_ALL_FACULTY_LOADS_BY_ID,
+  GET_EMPLOYEE_BY_B_ID
 } from '../db/services.js';
 import fs from "fs";
 import readline from "readline";
@@ -348,11 +349,100 @@ router.post('/edit-record', async (req, res) => {
 //   }
 // });
 
+// router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
+//   try {
+//     const filePath = req.file.path;
+
+//     // Parse the uploaded file
+//     async function extractAttendanceData() {
+//       const fileStream = fs.createReadStream(filePath);
+//       const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+
+//       const results = [];
+//       let isHeader = true;
+
+//       for await (const line of rl) {
+//         if (!line.trim()) continue; // skip empty lines
+//         if (isHeader) { isHeader = false; continue; }
+
+//         // Split by tab first, fallback to spaces
+//         let parts = line.split('\t');
+//         if (parts.length < 7) parts = line.trim().split(/\s+/);
+
+//         if (parts.length < 7) continue; // still invalid
+
+//         const EnNo = parseInt(parts[2], 10); // numeric employee id
+//         if (isNaN(EnNo)) continue; // skip if not a number
+
+//         const GMNo = parts[4];
+//         const Mode = parts[5];
+//         const DateTime = parts[6]; // "YYYY/MM/DD HH:MM:SS"
+
+//         results.push({ EnNo, GMNo, Mode, DateTime });
+//       }
+
+//       // Group by employee → date → AM/PM
+//       const groupedByEmployee = {};
+//       results.forEach(entry => {
+//         const empNo = entry.EnNo;
+//         const [date, time] = entry.DateTime.split(" ");
+
+//         if (!groupedByEmployee[empNo]) groupedByEmployee[empNo] = { employeeNo: empNo, days: {} };
+//         if (!groupedByEmployee[empNo].days[date]) groupedByEmployee[empNo].days[date] = { date, am_in: null, am_out: null, pm_in: null, pm_out: null };
+
+//         if (entry.Mode === '0') {
+//           if (!groupedByEmployee[empNo].days[date].am_in) groupedByEmployee[empNo].days[date].am_in = time;
+//           else groupedByEmployee[empNo].days[date].pm_in = time;
+//         } else if (entry.Mode === '1') {
+//           if (!groupedByEmployee[empNo].days[date].am_out) groupedByEmployee[empNo].days[date].am_out = time;
+//           else groupedByEmployee[empNo].days[date].pm_out = time;
+//         }
+//       });
+
+//       return Object.values(groupedByEmployee).map(emp => ({
+//         employeeNo: emp.employeeNo,
+//         days: Object.values(emp.days)
+//       }));
+//     }
+
+//     const groupedData = await extractAttendanceData();
+//     console.log(groupedData);
+
+//     // Insert into DTR table
+//     for (const emp of groupedData) {
+//       const employeeId = emp.employeeNo;
+//       for (const day of emp.days) {
+//         await INSERT_DTR(
+//           employeeId,
+//           day.am_in || null,
+//           day.am_out || null,
+//           day.pm_in || null,
+//           day.pm_out || null,
+//           day.date
+//         );
+//       }
+//     }
+
+//     // Save file upload record
+//     await INSERT_FILE_UPLOAD(req.file.filename, req.file.path);
+
+//     res.json({
+//       success: true,
+//       message: 'File uploaded and attendance saved successfully!',
+//       filename: req.file.originalname
+//     });
+
+//   } catch (error) {
+//     console.error('Upload error:', error);
+//     res.status(500).json({ success: false, message: 'Error saving file' });
+//   }
+// });
+
 router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
   try {
     const filePath = req.file.path;
 
-    // Parse the uploaded file
+    // Parse and group attendance data
     async function extractAttendanceData() {
       const fileStream = fs.createReadStream(filePath);
       const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
@@ -361,40 +451,43 @@ router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
       let isHeader = true;
 
       for await (const line of rl) {
-        if (!line.trim()) continue; // skip empty lines
+        if (!line.trim()) continue;
         if (isHeader) { isHeader = false; continue; }
 
-        // Split by tab first, fallback to spaces
         let parts = line.split('\t');
         if (parts.length < 7) parts = line.trim().split(/\s+/);
+        if (parts.length < 7) continue;
 
-        if (parts.length < 7) continue; // still invalid
+        const EnNo = parseInt(parts[2], 10);
+        if (isNaN(EnNo)) continue;
 
-        const EnNo = parseInt(parts[2], 10); // numeric employee id
-        if (isNaN(EnNo)) continue; // skip if not a number
-
-        const GMNo = parts[4];
-        const Mode = parts[5];
         const DateTime = parts[6]; // "YYYY/MM/DD HH:MM:SS"
-
-        results.push({ EnNo, GMNo, Mode, DateTime });
+        results.push({ EnNo, DateTime });
       }
 
-      // Group by employee → date → AM/PM
+      // Group by employee → date
       const groupedByEmployee = {};
+
       results.forEach(entry => {
         const empNo = entry.EnNo;
-        const [date, time] = entry.DateTime.split(" ");
+        const [date, time] = entry.DateTime.split(' ');
+        const [hour, minute] = time.split(':').map(Number);
+        const timeValue = hour + minute / 60;
 
-        if (!groupedByEmployee[empNo]) groupedByEmployee[empNo] = { employeeNo: empNo, days: {} };
-        if (!groupedByEmployee[empNo].days[date]) groupedByEmployee[empNo].days[date] = { date, am_in: null, am_out: null, pm_in: null, pm_out: null };
+        if (!groupedByEmployee[empNo]) 
+          groupedByEmployee[empNo] = { employeeNo: empNo, days: {} };
+        if (!groupedByEmployee[empNo].days[date]) 
+          groupedByEmployee[empNo].days[date] = { date, am_in: null, am_out: null, pm_in: null, pm_out: null };
 
-        if (entry.Mode === '0') {
-          if (!groupedByEmployee[empNo].days[date].am_in) groupedByEmployee[empNo].days[date].am_in = time;
-          else groupedByEmployee[empNo].days[date].pm_in = time;
-        } else if (entry.Mode === '1') {
-          if (!groupedByEmployee[empNo].days[date].am_out) groupedByEmployee[empNo].days[date].am_out = time;
-          else groupedByEmployee[empNo].days[date].pm_out = time;
+        const day = groupedByEmployee[empNo].days[date];
+
+        // Determine time slot
+        if (timeValue >= 8 && timeValue <= 12) {
+          if (!day.am_in) day.am_in = time;
+          else day.am_out = time;
+        } else if (timeValue >= 13 && timeValue <= 17) {
+          if (!day.pm_in) day.pm_in = time;
+          else day.pm_out = time;
         }
       });
 
@@ -407,9 +500,20 @@ router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
     const groupedData = await extractAttendanceData();
     console.log(groupedData);
 
+    let insertedCount = 0;
+    let skippedCount = 0;
+
     // Insert into DTR table
     for (const emp of groupedData) {
       const employeeId = emp.employeeNo;
+
+      // ✅ Skip if employee not found
+      if (!(await GET_EMPLOYEE_BY_B_ID(employeeId))) {
+        console.warn(`⚠️ Skipping employee_id ${employeeId}: not found in employees table`);
+        skippedCount++;
+        continue;
+      }
+
       for (const day of emp.days) {
         await INSERT_DTR(
           employeeId,
@@ -419,6 +523,7 @@ router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
           day.pm_out || null,
           day.date
         );
+        insertedCount++;
       }
     }
 
@@ -428,14 +533,17 @@ router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
     res.json({
       success: true,
       message: 'File uploaded and attendance saved successfully!',
+      inserted: insertedCount,
+      skipped: skippedCount,
       filename: req.file.originalname
     });
 
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ success: false, message: 'Error saving file' });
+    res.status(500).json({ success: false, message: 'Error saving file', error: error.message });
   }
 });
+
 
 router.post('/select-month', async (req, res) => {
   try {
@@ -449,9 +557,9 @@ router.post('/select-month', async (req, res) => {
     // console.log(eventthismonth);
     console.log("Faculty Load : ");
     console.log(facultyload);
-    // console.log(get_employee_info);
+    console.log(get_employee_info);
 
-    const dtr = await GET_DTR_FILTER_MONTH(formFields.month, formFields.id);
+    const dtr = await GET_DTR_FILTER_MONTH(formFields.month, get_employee_info.b_id);
     // console.log(dtr);
 
     res.status(200).json({

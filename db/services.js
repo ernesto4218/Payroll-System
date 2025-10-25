@@ -94,6 +94,11 @@ export async function GET_EMPLOYEE_BY_ID(id) {
   return rows[0];
 }
 
+export async function GET_EMPLOYEE_BY_B_ID(id) {
+  const [rows] = await db.execute(queries.GET_EMPLOYEE_BY_B_ID, [id]);
+  return rows[0];
+}
+
 export async function ADD_NEW_EMPLOYEE(b_id, b_name, type, designation, monthly_salary, hourly_salary, sss_monthly, microdev_monthly, first_name, middle_name, last_name) {
   const [result] = await db.execute(queries.ADD_NEW_EMPLOYEE,[b_id, b_name, type, designation, monthly_salary, hourly_salary, sss_monthly, microdev_monthly, first_name, middle_name, last_name]);
   return result.insertId;
@@ -184,8 +189,8 @@ export async function GET_ALL_FACULTY_LOADS_BY_ID(employee_id) {
   return result;
 }
 
-export async function   DELETE_FACULTY_LOAD_BY_ID(id) {
-  const [result] = await db.execute(queries.  DELETE_FACULTY_LOAD_BY_ID
+export async function DELETE_FACULTY_LOAD_BY_ID(id) {
+  const [result] = await db.execute(queries.DELETE_FACULTY_LOAD_BY_ID
 , [id]);
   return result.affectedRows > 0;
 }

@@ -19,6 +19,7 @@ export const VERIFY_AUTH = "SELECT * FROM users WHERE auth_token = ?";
 export const VERIFY_AUTH_RESIDENT = "SELECT * FROM residents WHERE auth_token = ?";
 export const GET_BY_EMAIL = 'SELECT * FROM users WHERE email = ?';
 export const GET_EMPLOYEE_BY_ID = 'SELECT * FROM employees WHERE id = ?';
+export const GET_EMPLOYEE_BY_B_ID = 'SELECT * FROM employees WHERE b_id = ?';
 export const GET_ALL_EMPLOYEE = 'SELECT * FROM employees ORDER BY id DESC';
 export const UPDATE_AUTH_TOKEN = 'UPDATE users SET auth_token = ? WHERE id = ?';
 export const GET_ALL_UPLOADED_FILES = 'SELECT * FROM file_upload ORDER BY id DESC';
