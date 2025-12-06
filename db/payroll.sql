@@ -205,7 +205,7 @@ CREATE TABLE `subjects` (
   `id` int(11) NOT NULL,
   `code` varchar(20) NOT NULL,
   `description` varchar(255) NOT NULL,
-  `date_added` date DEFAULT current_timestamp()
+  `date_added` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

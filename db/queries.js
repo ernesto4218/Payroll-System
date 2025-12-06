@@ -57,11 +57,18 @@ export const INSERT_DTR = `
     afternoon_time_out = VALUES(afternoon_time_out)
 `;
 
+// export const GET_DTR_MONTHS = `
+//   SELECT DISTINCT DATE_FORMAT(date, '%M %Y') AS month_year
+//   FROM dtr
+//   ORDER BY date
+// `;
+
 export const GET_DTR_MONTHS = `
-  SELECT DISTINCT DATE_FORMAT(date, '%M %Y') AS month_year
+  SELECT DISTINCT DATE_FORMAT(date, '%M %Y') AS month_year, DATE_FORMAT(date, '%Y-%m') AS sort_key
   FROM dtr
-  ORDER BY date
+  ORDER BY sort_key
 `;
+
 
 export const GET_DTR_FILTER_MONTH = `SELECT *
     FROM dtr
