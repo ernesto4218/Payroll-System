@@ -131,6 +131,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
     const addtravelorderform = document.getElementById('addtravelorderform');
     const addtravelorderformparent = document.getElementById('addtravelorderformparent');
     const closeaddtravelorderform = document.getElementById('closeaddtravelorderform');
+    const editFormParent = document.getElementById('editFormParent');
 
     let selected_employee_id = 0;
 
@@ -368,11 +369,51 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         });
     });
 
-    document.querySelectorAll('.dtrbtn').forEach(btn => {
-        btn.onclick = function(){
+    // document.querySelectorAll('.dtrbtn').forEach(btn => {
+    //     btn.onclick = function(){
+    //         const id = btn.getAttribute('data-employee');
+    //         const data = JSON.parse(btn.getAttribute('data-employeedata'));
+            
+    //         const dtrnametxt = document.getElementById('dtrnametxt');
+    //         dtrnametxt.textContent = 
+    //             (data.last_name + ", " + data.first_name + ", " + data.middle_name).toUpperCase();
+    //         console.log(data);
+
+    //         viewdtrformparent.classList.add('flex');
+    //         viewdtrformparent.classList.remove('hidden');
+
+    //         selected_employee_id = id;
+    //         monthselector.value = "";
+    //         tbody.innerHTML = "";
+    //         totalUndertimeMinutes = 0;
+    //         dtrduplicate.innerHTML = '';
+    //     }
+    // });
+
+    // document.querySelectorAll('.recordsbtn').forEach(btn => {
+    //     btn.onclick = function(){
+    //         const id = btn.getAttribute('data-employee');
+    //         selected_employee_id = id;
+
+    //         recordsparent.classList.remove('hidden');
+    //         recordsparent.classList.add('flex');
+
+    //         recordbody.innerHTML = "";
+    //         tablerecords = '';
+
+    //         document.getElementById('table-record-container').classList.add('hidden');
+            
+    //         console.log(recordbody);
+    //     }
+    // });
+
+    // For dtrbtn
+    document.body.addEventListener('click', function(e) {
+        if (e.target.closest('.dtrbtn')) {
+            const btn = e.target.closest('.dtrbtn');
             const id = btn.getAttribute('data-employee');
             const data = JSON.parse(btn.getAttribute('data-employeedata'));
-            
+
             const dtrnametxt = document.getElementById('dtrnametxt');
             dtrnametxt.textContent = 
                 (data.last_name + ", " + data.first_name + ", " + data.middle_name).toUpperCase();
@@ -389,8 +430,10 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         }
     });
 
-    document.querySelectorAll('.recordsbtn').forEach(btn => {
-        btn.onclick = function(){
+    // For recordsbtn
+    document.body.addEventListener('click', function(e) {
+        if (e.target.closest('.recordsbtn')) {
+            const btn = e.target.closest('.recordsbtn');
             const id = btn.getAttribute('data-employee');
             selected_employee_id = id;
 
@@ -405,6 +448,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             console.log(recordbody);
         }
     });
+
 
     document.querySelectorAll('.editbtn').forEach(btn => {
         btn.onclick = function(){
@@ -482,6 +526,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                     // Loop through all days
                     for (let day = 1; day <= daysInMonth; day++) {
                         const entry = dtrMap[day];
+                        console.log("entry: ", entry);
                         const currentDateStr = formatLocalDate(new Date(year, monthIndex, day));
                         const dayOfWeek = new Date(year, monthIndex, day).getDay();
 
@@ -639,6 +684,32 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                         // FULL-TIME TEACHER LOGIC
                         // ========================
                         } else {
+                            // const official = {
+                            //     morning_in: toMinutes12('8:00 AM'),
+                            //     morning_out: toMinutes12('12:00 PM'),
+                            //     afternoon_in: toMinutes12('1:00 PM'),
+                            //     afternoon_out: toMinutes12('5:00 PM')
+                            // };
+
+                            // // Morning
+                            // if (morning_in !== null && morning_in > official.morning_in)
+                            //     undertime += morning_in - official.morning_in;
+
+                            // if (morning_out !== null) {
+                            //     if (morning_out < official.morning_out)
+                            //         undertime += official.morning_out - morning_out;
+                            // } else undertime += 4 * 60;
+
+                            // // Afternoon
+                            // if (afternoon_in !== null && afternoon_in > official.afternoon_in)
+                            //     undertime += afternoon_in - official.afternoon_in;
+
+                            // if (afternoon_out !== null) {
+                            //     if (afternoon_out < official.afternoon_out)
+                            //         undertime += official.afternoon_out - afternoon_out;
+                            // } else undertime += 4 * 60;
+
+                            // if (undertime > 8 * 60) undertime = 8 * 60;
                             const official = {
                                 morning_in: toMinutes12('8:00 AM'),
                                 morning_out: toMinutes12('12:00 PM'),
@@ -647,24 +718,38 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                             };
 
                             // Morning
-                            if (morning_in !== null && morning_in > official.morning_in)
-                                undertime += morning_in - official.morning_in;
+                            const morningComplete = morning_in !== null && morning_out !== null;
 
-                            if (morning_out !== null) {
+                            if (!morningComplete) {
+                                // One is missing → whole morning = 4 hours undertime
+                                undertime += 4 * 60;
+                            } else {
+                                // Partial calculation only if both exist
+                                if (morning_in > official.morning_in)
+                                    undertime += morning_in - official.morning_in;
+
                                 if (morning_out < official.morning_out)
                                     undertime += official.morning_out - morning_out;
-                            } else undertime += 4 * 60;
+                            }
 
                             // Afternoon
-                            if (afternoon_in !== null && afternoon_in > official.afternoon_in)
-                                undertime += afternoon_in - official.afternoon_in;
+                            const afternoonComplete = afternoon_in !== null && afternoon_out !== null;
 
-                            if (afternoon_out !== null) {
+                            if (!afternoonComplete) {
+                                // One is missing → whole afternoon = 4 hours undertime
+                                undertime += 4 * 60;
+                            } else {
+                                // Partial calculation only if both exist
+                                if (afternoon_in > official.afternoon_in)
+                                    undertime += afternoon_in - official.afternoon_in;
+
                                 if (afternoon_out < official.afternoon_out)
                                     undertime += official.afternoon_out - afternoon_out;
-                            } else undertime += 4 * 60;
+                            }
 
+                            // Limit to max of 8 hours total
                             if (undertime > 8 * 60) undertime = 8 * 60;
+
                         }
 
                         // --- format result ---
@@ -674,9 +759,6 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                         totalUndertimeMinutes += undertime;
                         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                     }
-
-
-
 
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
@@ -720,7 +802,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
     monthselectorrecords.addEventListener('change', () => {
         const selectedMonth = monthselectorrecords.value;
         console.log('Selected month:', selectedMonth);
-
+        console.log('Selected user:', selected_employee_id);
         if (selectedMonth !== ''){
             fetch('/api/select-month-record', {
                 method: 'POST',
@@ -750,68 +832,205 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                     // Loop through all days
                     for (let day = 1; day <= daysInMonth; day++) {
                         const entry = dtrMap[day];
+                        console.log("entry ", entry);
                         const dayOfWeek = new Date(year, monthIndex, day).getDay();
                         const newRow = recordbody.insertRow();
-                        if (dayOfWeek === 6 && data.employee.type !== "part-time") { // Saturday
-                            // Day number
+                        const date = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                        if (dayOfWeek === 6) { // Saturday
                             newRow.insertCell(0).textContent = day;
 
-                            // Merge cells 1 → 5 into one cell with colspan=5
                             const saturdayCell = newRow.insertCell(1);
-                            saturdayCell.colSpan = 5;
                             saturdayCell.textContent = "SATURDAY";
 
-                            for (let i = 0; i < newRow.cells.length; i++) {
-                                newRow.cells[i].classList.add('text-center', 'text-red-600');
+                            // Fill extra cells to reach 6 columns for DataTable
+                            for (let i = newRow.cells.length; i < 6; i++) {
+                                newRow.insertCell(i).textContent = '';
                             }
-                        } else if (dayOfWeek === 0 && data.employee.type !== "part-time") { // Sunday
-                            // Day number
+
+                            for (let i = 0; i < newRow.cells.length; i++) {
+                                newRow.cells[i].classList.add('text-left', 'text-red-600');
+                            }
+
+                        } else if (dayOfWeek === 0) { // Sunday
                             newRow.insertCell(0).textContent = day;
 
-                            // Merge cells 1 → 5 into one cell with colspan=5
-                            const saturdayCell = newRow.insertCell(1);
-                            saturdayCell.colSpan = 5;
-                            saturdayCell.textContent = "SUNDAY";
+                            const sundayCell = newRow.insertCell(1);
+                            sundayCell.textContent = "SUNDAY";
 
                             for (let i = 0; i < newRow.cells.length; i++) {
-                                newRow.cells[i].classList.add('text-center', 'text-red-600');
+                                newRow.cells[i].classList.add('text-left', 'text-red-600');
                             }
+
                         } else {
+                            // Always insert day first
+                            newRow.insertCell(0).textContent = day;
 
-                            if (entry?.message){
-                                newRow.insertCell(0).textContent = day;
+                            if (!entry) {
+                                console.log("absent");
+                                // ABSENT
+                                newRow.insertCell(1).textContent = ""; 
+                                newRow.insertCell(2).textContent = ""; 
+                                newRow.insertCell(3).textContent = ""; 
+                                newRow.insertCell(4).textContent = ""; 
+                                newRow.insertCell(5).innerHTML = `
+                                    <div class="flex flex-row gap-2">
+                                        <span data-dtrid="" data-employee="${selected_employee_id}" class="hidden travelorderbtn cursor-pointer bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">T.O</span>
+                                        <span data-dtrid="" data-date_selected="${date}" data-employee="${selected_employee_id}" class="hidden editrecordbtn cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">Edit</span>
+                                    </div>
+                                `;
+                            } else if (entry?.message) {
+                                const messageCell = newRow.insertCell(1);
+                                messageCell.colSpan = 5;
+                                messageCell.textContent = entry.message.toUpperCase();
 
-                                // Merge cells 1 → 5 into one cell with colspan=5
-                                const travelordercell = newRow.insertCell(1);
-                                travelordercell.colSpan = 5;
-                                travelordercell.textContent = entry.message.toUpperCase();
+                                // Fill extra cells to reach 6 columns
+                                for (let i = newRow.cells.length; i < 6; i++) {
+                                    newRow.insertCell(i).textContent = '';
+                                }
 
                                 for (let i = 0; i < newRow.cells.length; i++) {
-                                    newRow.cells[i].classList.add('text-center', 'text-red-600');
+                                    newRow.cells[i].classList.add('text-left', 'text-red-600');
                                 }
                             } else {
-                                newRow.insertCell(0).textContent = day;
                                 newRow.insertCell(1).textContent = to12HourNoSuffix(entry?.morning_time_in);
                                 newRow.insertCell(2).textContent = to12HourNoSuffix(entry?.morning_time_out);
                                 newRow.insertCell(3).textContent = to12HourNoSuffix(entry?.afternoon_time_in);
                                 newRow.insertCell(4).textContent = to12HourNoSuffix(entry?.afternoon_time_out);
+                                newRow.insertCell(5).innerHTML = `
+                                    <span data-dtr='${JSON.stringify(entry)}' data-dtrid='${entry.id}' data-date_selected='${date}' data-employee='${selected_employee_id}' class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">Edit</span>
+                                `;
 
                                 for (let i = 0; i < newRow.cells.length; i++) {
-                                    newRow.cells[i].classList.add('text-center');
+                                    newRow.cells[i].classList.add('text-left');
                                 }
-
-                                if (!entry){
-                                    console.log('absent');
-                                    newRow.insertCell(5).innerHTML = `<span data-dtrid='${day}' data-employee='${selected_employee_id}' class="travelorderbtn cursor-pointer bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">T.O</span>`;
-                                } else {
-                                    newRow.insertCell(5).innerHTML = `<span data-dtr='${JSON.stringify(entry)}' data-employee='<%= JSON.stringify(employee) %>' class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">Edit</span>`;
-                                }
-
                             }
-                            
                         }
+
+
+                        // if (dayOfWeek === 6) { // Saturday
+                        //     // Day number
+                        //     newRow.insertCell(0).textContent = day;
+
+                        //     // Merge cells 1 → 5 into one cell with colspan=5
+                        //     const saturdayCell = newRow.insertCell(1);
+                        //     saturdayCell.colSpan = 5;
+                        //     saturdayCell.textContent = "SATURDAY";
+
+                        //     for (let i = 0; i < newRow.cells.length; i++) {
+                        //         newRow.cells[i].classList.add('text-center', 'text-red-600');
+                        //     }
+                        // } else if (dayOfWeek === 0) { // Sunday
+                        //     // Day number
+                        //     newRow.insertCell(0).textContent = day;
+
+                        //     // Merge cells 1 → 5 into one cell with colspan=5
+                        //     const saturdayCell = newRow.insertCell(1);
+                        //     saturdayCell.colSpan = 5;
+                        //     saturdayCell.textContent = "SUNDAY";
+
+                        //     for (let i = 0; i < newRow.cells.length; i++) {
+                        //         newRow.cells[i].classList.add('text-center', 'text-red-600');
+                        //     }
+                        // } else {
+                        //     // Always insert day first
+                        //     newRow.insertCell(0).textContent = day;
+
+                        //     if (!entry) {
+                        //         console.log("absent")
+                        //         // ABSENT
+                        //         newRow.insertCell(1).textContent = ""; 
+                        //         newRow.insertCell(2).textContent = ""; 
+                        //         newRow.insertCell(3).textContent = ""; 
+                        //         newRow.insertCell(4).textContent = ""; 
+
+                        //         newRow.insertCell(5).innerHTML = `
+                        //             <div class="flex flex-row gap-2">
+                        //                 <span data-dtrid="" data-employee="${selected_employee_id}"
+                        //                     class="travelorderbtn cursor-pointer bg-emerald-100 text-emerald-800 
+                        //                     text-xs font-medium px-2.5 py-0.5 rounded-sm">
+                        //                     T.O
+                        //                 </span>
+                        //                 <span data-dtrid="" data-date_selected="${date}" data-employee="${selected_employee_id}"
+                        //                     class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 
+                        //                     text-xs font-medium px-2.5 py-0.5 rounded-sm">
+                        //                     Edit
+                        //                 </span>
+                        //             </div>
+                        //         `;
+
+                        //     } else if (entry?.message) {
+
+                        //         const messageCell = newRow.insertCell(1);
+                        //         messageCell.colSpan = 5;
+                        //         messageCell.textContent = entry.message.toUpperCase();
+
+                        //         for (let i = 0; i < newRow.cells.length; i++) {
+                        //             newRow.cells[i].classList.add('text-center', 'text-red-600');
+                        //         }
+
+                        //     } else {
+
+                        //         newRow.insertCell(1).textContent = to12HourNoSuffix(entry?.morning_time_in);
+                        //         newRow.insertCell(2).textContent = to12HourNoSuffix(entry?.morning_time_out);
+                        //         newRow.insertCell(3).textContent = to12HourNoSuffix(entry?.afternoon_time_in);
+                        //         newRow.insertCell(4).textContent = to12HourNoSuffix(entry?.afternoon_time_out);
+
+                        //         for (let i = 0; i < newRow.cells.length; i++) {
+                        //             newRow.cells[i].classList.add('text-center');
+                        //         }
+
+                        //         newRow.insertCell(5).innerHTML = `
+                        //             <span data-dtr='${JSON.stringify(entry)}'
+                        //                 data-dtrid='${entry.id}'
+                        //                 data-date_selected='${date}'
+                        //                 data-employee='${selected_employee_id}'
+                        //                 class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 
+                        //                 text-xs font-medium px-2.5 py-0.5 rounded-sm">
+                        //                 Edit
+                        //             </span>`;
+                        //     }
+
+                        //     // if (entry?.message){
+                        //     //     newRow.insertCell(0).textContent = day;
+
+                        //     //     // Merge cells 1 → 5 into one cell with colspan=5
+                        //     //     const travelordercell = newRow.insertCell(1);
+                        //     //     travelordercell.colSpan = 5;
+                        //     //     travelordercell.textContent = entry.message.toUpperCase();
+
+                        //     //     for (let i = 0; i < newRow.cells.length; i++) {
+                        //     //         newRow.cells[i].classList.add('text-center', 'text-red-600');
+                        //     //     }
+                        //     // } else {
+                        //     //     newRow.insertCell(0).textContent = day;
+                        //     //     newRow.insertCell(1).textContent = to12HourNoSuffix(entry?.morning_time_in);
+                        //     //     newRow.insertCell(2).textContent = to12HourNoSuffix(entry?.morning_time_out);
+                        //     //     newRow.insertCell(3).textContent = to12HourNoSuffix(entry?.afternoon_time_in);
+                        //     //     newRow.insertCell(4).textContent = to12HourNoSuffix(entry?.afternoon_time_out);
+
+                        //     //     for (let i = 0; i < newRow.cells.length; i++) {
+                        //     //         newRow.cells[i].classList.add('text-center');
+                        //     //     }
+
+                        //     //     if (!entry){
+                        //     //         console.log('absent');
+                        //     //         newRow.insertCell(5).innerHTML = `
+                        //     //             <div class="flex flex-row gap-2">
+                        //     //                 <span data-dtrid='${entry.id}' data-employee='${selected_employee_id}' class="travelorderbtn cursor-pointer bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">T.O</span>
+                        //     //                 <span data-dtrid='${entry.id}' data-date_selected='${date}' data-employee='${selected_employee_id}' class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">Edit</span>
+                        //     //             </div>`;
+                        //     //     } else {
+                        //     //         newRow.insertCell(5).innerHTML = `<span data-dtr='${JSON.stringify(entry)}' data-dtrid='${entry.id}' data-date_selected='${date}' data-employee='${selected_employee_id}' class="editrecordbtn cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-sm">Edit</span>`;
+                        //     //     }
+
+                        //     // }
+                        // }
                     }
 
+                    // console.log(document.querySelector('#table-record-container #search-table-records'));
+                    // const table = document.querySelector('#table-record-container #search-table-records');
+                    // table.classList.add('w-full', 'max-w-5xl');
                     const tablerecords = new simpleDatatables.DataTable("#search-table-records", {
                         template: (options, dom) => "<div class='" + options.classes.top + "'>" +
                             "<div class='flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-3 rtl:space-x-reverse w-full sm:w-auto'>" +
@@ -913,6 +1132,8 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         }
     });
 
+
+    
     function rednderdtrduplicate() {
         dtrduplicate.innerHTML = '';
 
@@ -935,16 +1156,30 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             editrecordformparent.classList.add('flex');
 
             // Use e.target instead of btn
+            const dtrid = JSON.parse(e.target.getAttribute('data-dtrid'));
             const dtr = JSON.parse(e.target.getAttribute('data-dtr'));
-            console.log(dtr);
+            const employeeid = JSON.parse(e.target.getAttribute('data-employee'));
+            const date = e.target.getAttribute('data-date_selected');
 
-            document.querySelector('input[type="time"][name="morning_timein"]').value = dtr.morning_time_in || "";
-            document.querySelector('input[type="time"][name="morning_timeout"]').value = dtr.morning_time_out || "";
-            document.querySelector('input[type="time"][name="afternoon_timein"]').value = dtr.afternoon_time_in || "";
-            document.querySelector('input[type="time"][name="afternoon_timeout"]').value = dtr.afternoon_time_out || "";
 
-            editrecordform.querySelector('[name="employee_id"]').value = dtr.employee_id;
+            console.log(dtrid);
+
+            document.querySelector('input[name="morning_timein"]').value = "";
+            document.querySelector('input[name="morning_timeout"]').value = "";
+            document.querySelector('input[name="afternoon_timein"]').value = "";
+            document.querySelector('input[name="afternoon_timeout"]').value = "";
+
+            if (typeof dtr !== "undefined") {
+                document.querySelector('input[name="morning_timein"]').value = dtr?.morning_time_in || "";
+                document.querySelector('input[name="morning_timeout"]').value = dtr?.morning_time_out || "";
+                document.querySelector('input[name="afternoon_timein"]').value = dtr?.afternoon_time_in || "";
+                document.querySelector('input[name="afternoon_timeout"]').value = dtr?.afternoon_time_out || "";
+            }
+
+            editrecordform.querySelector('[name="employee_id"]').value = selected_employee_id;
             editrecordform.querySelector('[name="record_id"]').value = dtr.id;
+            editrecordform.querySelector('[name="selected_date"]').value = date;
+
         }
 
         if (e.target.classList.contains("travelorderbtn")) {

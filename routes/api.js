@@ -17,6 +17,7 @@ import {
   GET_EVENTS_MONTH,
   UPDATE_EMPLOYEE_BY_ID,
   UPDATE_RECORD_BY_ID,
+  // UPSERT_DTR_RECORD,
   GET_DTR_FILTER_MONTH_PAYROLL,
   GET_ALL_EMPLOYEE,
   INSERT_TRAVEL_ORDER,
@@ -30,6 +31,7 @@ import {
 } from '../db/services.js';
 import fs from "fs";
 import readline from "readline";
+import XLSX from "xlsx";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -164,7 +166,7 @@ router.post('/edit-record', async (req, res) => {
     const formFields = req.body;
     console.log(formFields);
 
-    const user = await GET_EMPLOYEE_BY_ID(formFields.employee_id);
+    const user = await GET_EMPLOYEE_BY_B_ID(formFields.employee_id);
     console.log(user);
     if (user){
       function stringToTime(timeStr) {
@@ -181,7 +183,7 @@ router.post('/edit-record', async (req, res) => {
         stringToTime(formFields.afternoon_timein),
         stringToTime(formFields.afternoon_timeout),
         formFields.record_id,
-        formFields.employee_id
+        formFields.employee_id,
       );      
       
       res.status(200).json({
@@ -438,112 +440,258 @@ router.post('/edit-record', async (req, res) => {
 //   }
 // });
 
-router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
+// router.post('/upload-file', upload.single('drop-file'), async (req, res) => {
+//   try {
+//     const filePath = req.file.path;
+
+//     // Parse and group attendance data
+//     async function extractAttendanceData() {
+//       const fileStream = fs.createReadStream(filePath);
+//       const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+
+//       const results = [];
+//       let isHeader = true;
+
+//       for await (const line of rl) {
+//         if (!line.trim()) continue;
+//         if (isHeader) { isHeader = false; continue; }
+
+//         let parts = line.split('\t');
+//         if (parts.length < 7) parts = line.trim().split(/\s+/);
+//         if (parts.length < 7) continue;
+
+//         const EnNo = parseInt(parts[2], 10);
+//         if (isNaN(EnNo)) continue;
+
+//         const DateTime = parts[6]; // "YYYY/MM/DD HH:MM:SS"
+//         results.push({ EnNo, DateTime });
+//       }
+
+//       // Group by employee → date
+//       const groupedByEmployee = {};
+
+//       results.forEach(entry => {
+//         const empNo = entry.EnNo;
+//         const [date, time] = entry.DateTime.split(' ');
+//         const [hour, minute] = time.split(':').map(Number);
+//         const timeValue = hour + minute / 60;
+
+//         if (!groupedByEmployee[empNo]) 
+//           groupedByEmployee[empNo] = { employeeNo: empNo, days: {} };
+//         if (!groupedByEmployee[empNo].days[date]) 
+//           groupedByEmployee[empNo].days[date] = { date, am_in: null, am_out: null, pm_in: null, pm_out: null };
+
+//         const day = groupedByEmployee[empNo].days[date];
+
+//         // Determine time slot
+//         if (timeValue >= 8 && timeValue <= 12) {
+//           if (!day.am_in) day.am_in = time;
+//           else day.am_out = time;
+//         } else if (timeValue >= 13 && timeValue <= 17) {
+//           if (!day.pm_in) day.pm_in = time;
+//           else day.pm_out = time;
+//         }
+//       });
+
+//       return Object.values(groupedByEmployee).map(emp => ({
+//         employeeNo: emp.employeeNo,
+//         days: Object.values(emp.days)
+//       }));
+//     }
+
+//     const groupedData = await extractAttendanceData();
+//     console.log(groupedData);
+
+//     let insertedCount = 0;
+//     let skippedCount = 0;
+
+//     // Insert into DTR table
+//     for (const emp of groupedData) {
+//       const employeeId = emp.employeeNo;
+
+//       // ✅ Skip if employee not found
+//       if (!(await GET_EMPLOYEE_BY_B_ID(employeeId))) {
+//         console.warn(`⚠️ Skipping employee_id ${employeeId}: not found in employees table`);
+//         skippedCount++;
+//         continue;
+//       }
+
+//       for (const day of emp.days) {
+//         await INSERT_DTR(
+//           employeeId,
+//           day.am_in || null,
+//           day.am_out || null,
+//           day.pm_in || null,
+//           day.pm_out || null,
+//           day.date
+//         );
+//         insertedCount++;
+//       }
+//     }
+
+//     // Save file upload record
+//     await INSERT_FILE_UPLOAD(req.file.filename, req.file.path);
+
+//     res.json({
+//       success: true,
+//       message: 'File uploaded and attendance saved successfully!',
+//       inserted: insertedCount,
+//       skipped: skippedCount,
+//       filename: req.file.originalname
+//     });
+
+//   } catch (error) {
+//     console.error('Upload error:', error);
+//     res.status(500).json({ success: false, message: 'Error saving file', error: error.message });
+//   }
+// });
+
+router.post("/upload-file", upload.single("drop-file"), async (req, res) => {
   try {
     const filePath = req.file.path;
+    const fileName = req.file.filename;
+    // console.log("Uploaded file:", filePath);
 
-    // Parse and group attendance data
-    async function extractAttendanceData() {
-      const fileStream = fs.createReadStream(filePath);
-      const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+    // 1️⃣ Read the text file
+    const fileData = fs.readFileSync(filePath, "utf8");
 
-      const results = [];
-      let isHeader = true;
+    // 2️⃣ Split into rows and columns by tabs
+    const lines = fileData.replace(/\r/g, "").trim().split("\n");
+    const rows = lines.map(line => line.split(/\t+/));
 
-      for await (const line of rl) {
-        if (!line.trim()) continue;
-        if (isHeader) { isHeader = false; continue; }
+    // 3️⃣ Convert to Excel
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-        let parts = line.split('\t');
-        if (parts.length < 7) parts = line.trim().split(/\s+/);
-        if (parts.length < 7) continue;
+    // 4️⃣ Save as .xlsx
+    const outputFilePath = path.join(
+      "routes/uploads/xlsx",
+      `${path.parse(fileName).name}.xlsx`
+    );
+    XLSX.writeFile(workbook, outputFilePath);
+    // console.log("Excel file saved to:", outputFilePath);
 
-        const EnNo = parseInt(parts[2], 10);
-        if (isNaN(EnNo)) continue;
+    // 5️⃣ Read the Excel file
+    const readWorkbook = XLSX.readFile(outputFilePath);
+    const sheetName = readWorkbook.SheetNames[0];
+    const readWorksheet = readWorkbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(readWorksheet);
+    const groupedDTR = {};
+    const attendance = {};
+    const punchesByDate = {};
+    const punchesByEmployee = {};
 
-        const DateTime = parts[6]; // "YYYY/MM/DD HH:MM:SS"
-        results.push({ EnNo, DateTime });
-      }
 
-      // Group by employee → date
-      const groupedByEmployee = {};
+    // console.log("jsondata", jsonData);
 
-      results.forEach(entry => {
-        const empNo = entry.EnNo;
-        const [date, time] = entry.DateTime.split(' ');
-        const [hour, minute] = time.split(':').map(Number);
-        const timeValue = hour + minute / 60;
+    // Helper: check if afternoonIn is valid (minute-based)
+    function isValidAfternoonIn(morningOut, afternoonIn) {
+      const mo = new Date(morningOut);
+      const ai = new Date(afternoonIn);
 
-        if (!groupedByEmployee[empNo]) 
-          groupedByEmployee[empNo] = { employeeNo: empNo, days: {} };
-        if (!groupedByEmployee[empNo].days[date]) 
-          groupedByEmployee[empNo].days[date] = { date, am_in: null, am_out: null, pm_in: null, pm_out: null };
-
-        const day = groupedByEmployee[empNo].days[date];
-
-        // Determine time slot
-        if (timeValue >= 8 && timeValue <= 12) {
-          if (!day.am_in) day.am_in = time;
-          else day.am_out = time;
-        } else if (timeValue >= 13 && timeValue <= 17) {
-          if (!day.pm_in) day.pm_in = time;
-          else day.pm_out = time;
-        }
-      });
-
-      return Object.values(groupedByEmployee).map(emp => ({
-        employeeNo: emp.employeeNo,
-        days: Object.values(emp.days)
-      }));
+      if (ai.getHours() > mo.getHours()) return true;
+      if (ai.getHours() === mo.getHours() && ai.getMinutes() > mo.getMinutes()) return true;
+      return false;
     }
 
-    const groupedData = await extractAttendanceData();
-    console.log(groupedData);
+    // Step 1: Group punches per employee per date
+    jsonData.forEach(emp => {
+      if (emp.GMNo === '0') return; // ignore unclassified
 
-    let insertedCount = 0;
-    let skippedCount = 0;
+      if (!punchesByEmployee[emp.EnNo]) punchesByEmployee[emp.EnNo] = {};
+      const dateKey = emp.DateTime.split(' ')[0];
+      if (!punchesByEmployee[emp.EnNo][dateKey]) punchesByEmployee[emp.EnNo][dateKey] = [];
+      punchesByEmployee[emp.EnNo][dateKey].push(emp);
+    });
 
-    // Insert into DTR table
-    for (const emp of groupedData) {
-      const employeeId = emp.employeeNo;
+    // Step 2: Process each employee
+    for (const enNo in punchesByEmployee) {
+      attendance[enNo] = {};
 
-      // ✅ Skip if employee not found
-      if (!(await GET_EMPLOYEE_BY_B_ID(employeeId))) {
-        console.warn(`⚠️ Skipping employee_id ${employeeId}: not found in employees table`);
-        skippedCount++;
-        continue;
+      const dates = punchesByEmployee[enNo];
+      for (const date in dates) {
+        const records = dates[date];
+        attendance[enNo][date] = {
+          morningIn: null,
+          morningOut: null,
+          afternoonIn: null,
+          afternoonOut: null
+        };
+
+        let morningOutDate = null;
+
+        // Morning punches
+        records.forEach(emp => {
+          const empDate = new Date(emp.DateTime);
+          switch(emp.GMNo) {
+            case '1': // Morning In
+              if (!attendance[enNo][date].morningIn || empDate > new Date(attendance[enNo][date].morningIn)) {
+                attendance[enNo][date].morningIn = emp.DateTime;
+              }
+              break;
+            case '2': // Morning Out
+              if (!attendance[enNo][date].morningOut || empDate > new Date(attendance[enNo][date].morningOut)) {
+                attendance[enNo][date].morningOut = emp.DateTime;
+                morningOutDate = empDate;
+              }
+              break;
+          }
+        });
+
+        // Afternoon punches
+        records.forEach(emp => {
+          const empDate = new Date(emp.DateTime);
+          switch(emp.GMNo) {
+            case '3': // Afternoon In
+              if (morningOutDate && !isValidAfternoonIn(morningOutDate, empDate)) return; // minute-level check
+              if (!attendance[enNo][date].afternoonIn || empDate > new Date(attendance[enNo][date].afternoonIn)) {
+                attendance[enNo][date].afternoonIn = emp.DateTime;
+              }
+              break;
+            case '4': // Afternoon Out
+              if (!attendance[enNo][date].afternoonOut || empDate > new Date(attendance[enNo][date].afternoonOut)) {
+                attendance[enNo][date].afternoonOut = emp.DateTime;
+              }
+              break;
+          }
+        });
       }
+    }
+    
+    for (const employeeId in attendance) {
+      const employeeAttendance = attendance[employeeId];
 
-      for (const day of emp.days) {
+      for (const date in employeeAttendance) {
+        const day = employeeAttendance[date];
         await INSERT_DTR(
           employeeId,
-          day.am_in || null,
-          day.am_out || null,
-          day.pm_in || null,
-          day.pm_out || null,
-          day.date
+          day.morningIn || null,
+          day.morningOut || null,
+          day.afternoonIn || null,
+          day.afternoonOut || null,
+          date
         );
-        insertedCount++;
       }
     }
 
-    // Save file upload record
     await INSERT_FILE_UPLOAD(req.file.filename, req.file.path);
-
+    
     res.json({
       success: true,
-      message: 'File uploaded and attendance saved successfully!',
-      inserted: insertedCount,
-      skipped: skippedCount,
-      filename: req.file.originalname
+      message: "File uploaded and extracted successfully",
+      outputFile: outputFilePath,
     });
 
   } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ success: false, message: 'Error saving file', error: error.message });
+    console.error("Upload error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error converting or reading file",
+      error: error.message,
+    });
   }
 });
-
 
 router.post('/select-month', async (req, res) => {
   try {
@@ -555,12 +703,13 @@ router.post('/select-month', async (req, res) => {
     // console.log(formFields.month);
     // console.log(formFields.id);
     // console.log(eventthismonth);
+
     console.log("Faculty Load : ");
     console.log(facultyload);
     console.log(get_employee_info);
 
     const dtr = await GET_DTR_FILTER_MONTH(formFields.month, get_employee_info.b_id);
-    // console.log(dtr);
+    console.log(dtr);
 
     res.status(200).json({
       success: true,
@@ -603,7 +752,7 @@ router.post('/select-month-record', async (req, res) => {
     console.log(formFields.month);
     console.log(formFields.id);
 
-    const get_employee_info = await GET_EMPLOYEE_BY_ID(formFields.id);
+    const get_employee_info = await GET_EMPLOYEE_BY_B_ID(formFields.id);
     const dtr = await GET_DTR_FILTER_MONTH(formFields.month, formFields.id);
 
     res.status(200).json({

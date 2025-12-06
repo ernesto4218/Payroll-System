@@ -1,3 +1,5 @@
+process.env.TZ = 'Asia/Manila';
+
 import express from 'express';
 import path, { format } from 'path';
 import { fileURLToPath } from 'url';

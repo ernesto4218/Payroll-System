@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 25, 2025 at 04:28 AM
+-- Generation Time: Dec 06, 2025 at 05:49 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -38,14 +38,6 @@ CREATE TABLE `dtr` (
   `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `dtr`
---
-
-INSERT INTO `dtr` (`id`, `employee_id`, `morning_time_in`, `morning_time_out`, `afternoon_time_in`, `afternoon_time_out`, `message`, `date`) VALUES
-(922, 1950, NULL, NULL, '13:58:38', '14:00:22', NULL, '2025-10-23'),
-(923, 1951, NULL, NULL, '13:58:47', '14:00:31', NULL, '2025-10-23');
-
 -- --------------------------------------------------------
 
 --
@@ -75,15 +67,28 @@ CREATE TABLE `employees` (
 --
 
 INSERT INTO `employees` (`id`, `b_id`, `b_name`, `type`, `designation`, `monthly_salary`, `hourly_salary`, `sss`, `microdev`, `pagibig`, `first_name`, `middle_name`, `last_name`, `last_edited`, `date_added`) VALUES
-(1, 1, 'ernesto', 'full-time', 'Instructor', 10000.00, 0.00, 500, 300.00, 0.00, 'ernesto', 'cotales', 'sabornido', '2025-09-21 03:16:03', '2025-08-15 04:31:09'),
-(2, 2, 'yator', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Rosie', 'NA', 'Yator', '2025-10-10 04:34:49', '2025-08-15 14:02:10'),
+(1, 30735, 'ernesto', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'ernesto', 'cotales', 'sabornido', '2025-11-17 03:49:41', '2025-08-15 04:31:09'),
+(2, 29589, 'yator', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Rosie', 'NA', 'Yator', '2025-11-17 01:18:04', '2025-08-15 14:02:10'),
 (3, 3, 'lanterna', 'full-time', 'Instruct / Program Head', 12000.00, 0.00, 500, 0.00, 0.00, 'Richard', 'A', 'Lanterna', '2025-08-17 07:46:23', '2025-08-15 14:02:29'),
-(6, 6, 'Janrell', 'part-time', 'Instructor', 0.00, 100.00, 0, 0.00, 0.00, 'Janrell', 'H', 'Dumanon', '2025-10-10 04:20:09', '2025-10-10 04:20:09'),
-(7, 7, 'Flaviano', 'part-time', 'Instructor', 0.00, 100.00, 0, 0.00, 0.00, 'Flaviano', 'S', 'Fucoy III', '2025-10-10 04:25:29', '2025-10-10 04:25:29'),
-(8, 8, 'Honey', 'part-time', 'Instructor', 0.00, 100.00, 0, 0.00, 0.00, 'Honey Joy', 'B', 'Lao', '2025-10-10 04:27:10', '2025-10-10 04:27:10'),
-(9, 123, 'dimple', 'part-time', 'Instructor', 0.00, 0.00, 600, 600.00, 0.00, 'dimple', 'echavez', 'banguis', '2025-10-14 08:27:44', '2025-10-14 08:27:44'),
-(10, 1950, 'lesly', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'lesly', 'alboleras', 'batingal', '2025-10-23 06:07:36', '2025-10-23 06:07:36'),
-(11, 1951, 'dimple', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'dimple', 'echavez', 'banguis', '2025-10-23 06:08:27', '2025-10-23 06:08:27');
+(12, 22345, 'Shiela', 'full-time', 'Library Staff', 10000.00, 0.00, 0, 0.00, 0.00, 'Shiela', 'C.', 'Adorna', '2025-11-17 01:05:54', '2025-11-17 01:05:54'),
+(13, 30733, 'Merryl', 'full-time', 'Instructor', 11000.00, 0.00, 0, 0.00, 0.00, 'Merryl', 'R.', 'Parreño', '2025-11-17 01:06:33', '2025-11-17 01:06:33'),
+(14, 30178, 'Marialie', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Marialie', 'D.', 'Superable', '2025-11-17 01:07:14', '2025-11-17 01:07:14'),
+(15, 30180, 'Rennier', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Rennier Mark', 'B.', 'Villanoza', '2025-11-17 01:07:55', '2025-11-17 01:07:55'),
+(16, 30734, 'Christine', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Christine', 'P.', 'Rodriguez', '2025-11-17 01:08:28', '2025-11-17 01:08:28'),
+(17, 28850, 'Gellan', 'full-time', 'Registrar Staff', 10000.00, 0.00, 0, 0.00, 0.00, 'Gellan', 'L.', 'Mangumpit', '2025-11-17 01:09:14', '2025-11-17 01:09:14'),
+(18, 30170, 'Mark', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Mark Niño', 'B.', 'Magracia', '2025-11-17 01:10:12', '2025-11-17 01:10:12'),
+(19, 30736, 'John', 'full-time', 'Instructor', 11000.00, 0.00, 0, 0.00, 0.00, 'John Lloyd', 'M.', 'Toledo', '2025-11-17 01:11:19', '2025-11-17 01:11:19'),
+(20, 30724, 'Marlyn', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Marlyn Jane', 'R.', 'Conturno', '2025-11-17 01:12:07', '2025-11-17 01:12:07'),
+(21, 30732, 'Jeannette', 'full-time', 'Instructor', 11000.00, 0.00, 0, 0.00, 0.00, 'Jeannette', 'A.', 'Monton', '2025-11-17 01:12:41', '2025-11-17 01:12:41'),
+(22, 28952, 'Maria', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Maria Cris', 'A.', 'Filosofo', '2025-11-17 01:13:21', '2025-11-17 01:13:21'),
+(23, 30728, 'Philip', 'full-time', 'Registrar Staff', 10000.00, 0.00, 0, 0.00, 0.00, 'Philip James', 'S.', 'Gumera', '2025-11-17 01:14:04', '2025-11-17 01:14:04'),
+(24, 23401, 'Roselgen', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Roselgen', 'A.', 'Castolo', '2025-11-17 01:14:40', '2025-11-17 01:14:40'),
+(25, 24779, 'Gilbert', 'full-time', 'ROTC', 10000.00, 0.00, 0, 0.00, 0.00, 'Gilbert', 'A.', 'Bautista', '2025-11-17 01:15:13', '2025-11-17 01:15:13'),
+(26, 30316, 'Christian', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Christian Joy', 'R.', 'Yap', '2025-11-17 01:15:48', '2025-11-17 01:15:48'),
+(27, 23410, 'Balmonte', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Balmonte', 'B.', 'Balmonte', '2025-11-17 01:16:22', '2025-11-17 01:16:22'),
+(28, 28897, 'Gladys', 'full-time', 'Instructor', 10000.00, 0.00, 0, 0.00, 0.00, 'Gladys Ann', 'E.', 'Mag-usara', '2025-11-17 01:16:51', '2025-11-17 01:16:51'),
+(29, 29553, 'Charita', 'full-time', 'Janitor', 10000.00, 0.00, 0, 0.00, 0.00, 'Charita', 'S.', 'Miranda', '2025-11-17 01:17:25', '2025-11-17 01:17:25'),
+(30, 30528, 'JN', 'full-time', 'Campus Dean', 70000.00, 0.00, 0, 0.00, 0.00, 'Jehuel Nathan', 'R', 'Daculio', '2025-12-05 08:50:48', '2025-12-05 08:50:48');
 
 -- --------------------------------------------------------
 
@@ -104,13 +109,9 @@ CREATE TABLE `events` (
 --
 
 INSERT INTO `events` (`id`, `start`, `end`, `description`, `date_added`) VALUES
-(14, '2025-08-25', '2025-08-25', 'HOLIDAY', '2025-09-05 00:41:16'),
-(15, '2025-08-21', '2025-08-21', 'HOLIDAY', '2025-09-05 00:41:25'),
-(16, '2025-09-26', '2025-09-26', 'test', '2025-09-25 03:52:37'),
-(17, '2025-09-11', '2025-09-11', 'BIRTHDAY NAKO', '2025-10-03 03:25:20'),
-(18, '2025-10-06', '2025-10-06', 'Holiday', '2025-10-03 13:35:56'),
-(19, '2025-10-14', '2025-10-17', 'Defense', '2025-10-10 04:40:13'),
-(20, '2025-08-11', '2025-08-11', 'birthday', '2025-10-14 06:37:59');
+(22, '2025-10-31', '2025-10-31', 'Holiday', '2025-11-04 15:00:07'),
+(23, '2025-12-08', '2025-12-08', 'Birthday nako', '2025-12-01 06:13:16'),
+(24, '2025-11-11', '2025-11-11', 'Birthday nako', '2025-12-01 06:13:47');
 
 -- --------------------------------------------------------
 
@@ -135,7 +136,7 @@ CREATE TABLE `faculty_loads` (
 INSERT INTO `faculty_loads` (`id`, `teacher_id`, `subject_id`, `start_time`, `end_time`, `days`, `date_added`) VALUES
 (4, 5, 3, '17:00:00', '19:00:00', 'SUN', '2025-09-18 02:06:03'),
 (5, 5, 3, '17:00:00', '20:00:00', 'MON', '2025-09-18 02:06:22'),
-(6, 5, 3, '17:00:00', '19:00:00', 'TUE, WED, THU, FRI, SAT', '2025-09-18 02:07:49'),
+(6, 1, 3, '08:00:00', '12:00:00', 'TUE, WED, THU, FRI, SAT', '2025-09-18 02:07:49'),
 (7, 6, 5, '07:00:00', '12:00:00', 'SAT', '2025-10-10 04:22:02'),
 (8, 6, 5, '13:00:00', '18:00:00', 'SAT', '2025-10-10 04:22:32'),
 (9, 6, 6, '07:00:00', '12:00:00', 'SUN', '2025-10-10 04:23:09'),
@@ -165,29 +166,34 @@ CREATE TABLE `file_upload` (
 --
 
 INSERT INTO `file_upload` (`id`, `file_name`, `path`, `date_added`) VALUES
-(5, 'AGL_20250815T141624813Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250815T141624813Z.TXT', '2025-08-15 22:16:24'),
-(6, 'AGL_20250815T142148594Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250815T142148594Z.TXT', '2025-08-15 22:21:48'),
-(7, 'AGL_Invalid Date.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Invalid Date.TXT', '2025-08-15 22:35:07'),
-(8, 'AGL_20250815T232603986Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250815T232603986Z.TXT', '2025-08-16 07:26:04'),
-(9, 'AGL_20250815T232831089Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250815T232831089Z.TXT', '2025-08-16 07:28:31'),
-(10, 'AGL_20250818T034640219Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250818T034640219Z.TXT', '2025-08-18 11:46:40'),
-(11, 'AGL_20250818T063537751Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250818T063537751Z.TXT', '2025-08-18 14:35:37'),
-(12, 'AGL_20250905T003354261Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250905T003354261Z.TXT', '2025-09-05 08:33:54'),
-(13, 'AGL_20250905T003518010Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250905T003518010Z.TXT', '2025-09-05 08:35:18'),
-(14, 'AGL_20250905T003603536Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250905T003603536Z.TXT', '2025-09-05 08:36:03'),
-(15, 'AGL_20250905T003703966Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250905T003703966Z.TXT', '2025-09-05 08:37:04'),
-(16, 'AGL_20250905T003910407Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250905T003910407Z.TXT', '2025-09-05 08:39:10'),
-(17, 'AGL_20250920T124249442Z.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250920T124249442Z.TXT', '2025-09-20 20:42:49'),
-(18, 'AGL_20250920T125251413Z.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250920T125251413Z.txt', '2025-09-20 20:52:51'),
-(19, 'AGL_20250920T134433468Z.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250920T134433468Z.txt', '2025-09-20 21:44:33'),
-(20, 'AGL_20250920T134910399Z.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20250920T134910399Z.txt', '2025-09-20 21:49:10'),
-(21, 'AGL_20251013T152803946Z.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20251013T152803946Z.txt', '2025-10-13 23:28:04'),
-(22, 'AGL_20251013T153506693Z.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_20251013T153506693Z.txt', '2025-10-13 23:35:06'),
-(23, 'AGL_Mon_Oct_13_2025_23-41-35.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Mon_Oct_13_2025_23-41-35.txt', '2025-10-13 23:41:35'),
-(24, 'AGL_Tue_Oct_14_2025_14-35-42.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Tue_Oct_14_2025_14-35-42.txt', '2025-10-14 14:35:42'),
-(25, 'AGL_Tue_Oct_14_2025_16-34-08.txt', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Tue_Oct_14_2025_16-34-08.txt', '2025-10-14 16:34:08'),
-(26, 'AGL_Thu_Oct_23_2025_14-16-01.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Thu_Oct_23_2025_14-16-01.TXT', '2025-10-23 14:16:01'),
-(27, 'AGL_Thu_Oct_23_2025_14-18-22.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Thu_Oct_23_2025_14-18-22.TXT', '2025-10-23 14:18:22');
+(1, 'AGL_Mon_Nov_17_2025_13-19-38.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Mon_Nov_17_2025_13-19-38.TXT', '2025-11-17 13:19:38'),
+(2, 'AGL_Mon_Nov_17_2025_15-34-13.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Mon_Nov_17_2025_15-34-13.TXT', '2025-11-17 15:34:13'),
+(3, 'AGL_Mon_Dec_01_2025_13-49-09.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Mon_Dec_01_2025_13-49-09.TXT', '2025-12-01 13:49:09'),
+(4, 'AGL_Mon_Dec_01_2025_14-07-20.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Mon_Dec_01_2025_14-07-20.TXT', '2025-12-01 14:07:20'),
+(5, 'AGL_Fri_Dec_05_2025_16-52-32.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Fri_Dec_05_2025_16-52-32.TXT', '2025-12-05 16:52:32'),
+(6, 'AGL_Fri_Dec_05_2025_17-05-40.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Fri_Dec_05_2025_17-05-40.TXT', '2025-12-05 17:05:40'),
+(7, 'AGL_Sat_Dec_06_2025_11-16-03.TXT', '/Users/ernesto/Documents/Capstone Projects/Payroll System/routes/uploads/AGL_Sat_Dec_06_2025_11-16-03.TXT', '2025-12-06 11:16:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payroll`
+--
+
+CREATE TABLE `payroll` (
+  `id` int(11) NOT NULL,
+  `amount_total` decimal(10,2) NOT NULL,
+  `date_added` varchar(20) NOT NULL,
+  `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payroll`
+--
+
+INSERT INTO `payroll` (`id`, `amount_total`, `date_added`, `date_updated`) VALUES
+(1, 184117.50, 'November 2025', '2025-12-05 17:01:12'),
+(24, 63668.01, 'December 2025', '2025-12-01 14:10:42');
 
 -- --------------------------------------------------------
 
@@ -234,7 +240,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `full_name`, `auth_token`, `date_added`) VALUES
-(1, 'admin@gmail.com', '$2b$10$JHXrTHrcLFnnBGaQ4gmte.gZtSZtHy5wbjXskiEVZ1AqiqvjzfPfu', 'administrator', 'nZxra67CK/2COo+fhBlJf54aHfAOTScYa/LWKmEGGSg=', '2025-06-28 19:38:38');
+(1, 'admin@gmail.com', '$2b$10$JHXrTHrcLFnnBGaQ4gmte.gZtSZtHy5wbjXskiEVZ1AqiqvjzfPfu', 'administrator', '3etrWgbLfidzQmDZjpKUNAeeI6966fmbD/3PvyqGagE=', '2025-06-28 19:38:38');
 
 --
 -- Indexes for dumped tables
@@ -244,7 +250,9 @@ INSERT INTO `users` (`id`, `email`, `password`, `full_name`, `auth_token`, `date
 -- Indexes for table `dtr`
 --
 ALTER TABLE `dtr`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_employee_date` (`employee_id`,`date`),
+  ADD UNIQUE KEY `unique_dtr` (`date`,`employee_id`);
 
 --
 -- Indexes for table `employees`
@@ -271,6 +279,13 @@ ALTER TABLE `file_upload`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `payroll`
+--
+ALTER TABLE `payroll`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `date_added` (`date_added`);
+
+--
 -- Indexes for table `subjects`
 --
 ALTER TABLE `subjects`
@@ -291,19 +306,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `dtr`
 --
 ALTER TABLE `dtr`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=924;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `events`
 --
 ALTER TABLE `events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `faculty_loads`
@@ -315,7 +330,13 @@ ALTER TABLE `faculty_loads`
 -- AUTO_INCREMENT for table `file_upload`
 --
 ALTER TABLE `file_upload`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `payroll`
+--
+ALTER TABLE `payroll`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=119;
 
 --
 -- AUTO_INCREMENT for table `subjects`

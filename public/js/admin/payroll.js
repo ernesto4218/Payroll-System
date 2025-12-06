@@ -59,7 +59,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             "<nav class='" + options.classes.pagination + "'></nav>" +
         "</div>"
     })
-    
+
     const $exportButton = document.getElementById("exportDropdownButton");
     const $exportDropdownEl = document.getElementById("exportDropdown");
     const visibleColumnIndexes = table.columns.settings
@@ -117,7 +117,19 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         <a id="releasepayrollbtn" href="#">
             <button type="button" class="flex flex-row gap-2 items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2.5 py-2.5">
             <svg class="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
-            Release</button>
+            Print</button>
+        </a>
+
+        <a id="disbursementbtn" href="/attachments/Disbursment Voucher.xlsx">
+            <button type="button" class="hidden flex-row gap-2 items-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-2.5 py-2.5">
+            <svg class="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
+            Disbursement</button>
+        </a>
+
+        <a id="obligationbtbn" href="/attachments/Obligation Request.xlsx">
+            <button type="button" class="flex flex-row gap-2 items-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-2.5 py-2.5">
+            <svg class="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
+            Obligation</button>
         </a>
     `
 
@@ -143,6 +155,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         const params = new URLSearchParams(window.location.search);
         const month = params.get("month");
 
+
         if (month) {
             releasefulltimeparent.classList.remove('hidden');
             releasefulltimeparent.classList.add('flex');
@@ -154,6 +167,9 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             const visibleRows = document
             .getElementById("search-table")
             .querySelectorAll("tr");
+
+            console.log(visibleRows);
+            var totalnet = 0;
 
             visibleRows.forEach((row, i) => {
                 if (i >= 1) { // skip header row
@@ -214,12 +230,26 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
 
                     // Net this period
                     tr.innerHTML += `<td class="px-3 py-1 border border-gray-200 font-medium">${values[9]}</td>`;
+                    const amount = Number(values[9].replace(/[^0-9.-]+/g, ""));
+                    totalnet += amount;
 
                     tbody.appendChild(tr);
                 }
             });
 
+            const totalRow = document.createElement("tr");
+            totalRow.className = "bg-gray-200 font-semibold";
 
+            // Format total with commas (optional)
+            const formattedTotal = totalnet.toLocaleString();
+
+            // Build cells (adjust columns depending on your layout)
+            totalRow.innerHTML = `
+                <td class="px-3 py-2 border border-gray-300" colspan="9" style="text-align:left;">TOTAL NET:</td>
+                <td class="px-3 py-2 border border-gray-300">₱${formattedTotal}</td>
+            `;
+
+            tbody.appendChild(totalRow);
         } else {
             showToast("error", "Please select a month.");
         }
@@ -231,60 +261,82 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         releasefulltimeparent.classList.add('hidden');
     };
 
-const { jsPDF } = window.jspdf;
-function sanitizeColors(node) {
-    node.querySelectorAll("*").forEach(el => {
-        const style = window.getComputedStyle(el);
+    const { jsPDF } = window.jspdf;
+    function sanitizeColors(node) {
+        node.querySelectorAll("*").forEach(el => {
+            const style = window.getComputedStyle(el);
 
-        if (style.color.includes("oklch")) {
-            el.style.color = "#374151"; // fallback text color
-        }
-        if (style.backgroundColor.includes("oklch")) {
-            el.style.backgroundColor = "#ffffff"; // fallback bg
-        }
-        if (style.borderColor.includes("oklch")) {
-            el.style.borderColor = "#e5e7eb"; // fallback border
-        }
-    });
-}
+            if (style.color.includes("oklch")) {
+                el.style.color = "#374151"; // fallback text color
+            }
+            if (style.backgroundColor.includes("oklch")) {
+                el.style.backgroundColor = "#ffffff"; // fallback bg
+            }
+            if (style.borderColor.includes("oklch")) {
+                el.style.borderColor = "#e5e7eb"; // fallback border
+            }
+        });
+    }
 
-printreleasefullbtn.onclick = function () {
+    printreleasefullbtn.onclick = function () {
     const element = document.getElementById("payrollfullprint");
 
     sanitizeColors(element);
 
-    const scale = 4; // increase for sharper text
+    // Expand full height so dom-to-image captures everything
+    const originalOverflow = element.style.overflow;
+    const originalHeight = element.style.height;
+    element.style.overflow = "visible";
+    element.style.height = "auto";
+
+    const scale = 2; // dom-to-image quality scale
 
     domtoimage.toPng(element, {
         width: element.offsetWidth * scale,
-        height: element.offsetHeight * scale,
+        height: element.scrollHeight * scale,
         style: {
             transform: "scale(" + scale + ")",
             transformOrigin: "top left",
             width: element.offsetWidth + "px",
-            height: element.offsetHeight + "px"
+            height: element.scrollHeight + "px"
         }
     })
     .then(dataUrl => {
-        // Custom size: long bond (8.5 x 13 in) landscape
-        const pdf = new jsPDF("landscape", "pt", [936, 612]);
-
+        const pdf = new jsPDF("landscape", "pt", "legal");
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
         const img = new Image();
         img.src = dataUrl;
-        img.onload = function() {
-            const ratio = Math.min(pageWidth / img.width, pageHeight / img.height);
-            const imgWidth = img.width * ratio;
-            const imgHeight = img.height * ratio;
+        img.onload = function () {
+            const elementWidth = img.width;
+            const elementHeight = img.height;
 
-            pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
+            // Calculate scale to fit entire content on one page
+            const scaleX = pageWidth / elementWidth;
+            const scaleY = pageHeight / elementHeight;
+            const scale = Math.min(scaleX, scaleY);
+
+            const imgWidth = elementWidth * scale;
+            const imgHeight = elementHeight * scale;
+
+            // Center image on page
+            const x = (pageWidth - imgWidth) / 2;
+            const y = (pageHeight - imgHeight) / 2;
+
+            pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight);
             pdf.save("payroll.pdf");
         };
+
+        // Restore original CSS
+        element.style.overflow = originalOverflow;
+        element.style.height = originalHeight;
     })
     .catch(error => {
         console.error("Export failed:", error);
     });
 };
+
 }
+
+

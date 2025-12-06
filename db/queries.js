@@ -29,6 +29,12 @@ export const DELETE_FACULTY_LOAD_BY_ID = 'DELETE FROM faculty_loads WHERE id = ?
 export const COUNT_TOTAL_EMPLOYEES = 'SELECT COUNT(*) AS total_employees FROM employees';
 export const COUNT_TOTAL_FULLTIME = 'SELECT COUNT(*) AS total_fulltime FROM employees WHERE type = "full-time"';
 export const COUNT_TOTAL_PARTTIME = 'SELECT COUNT(*) AS total_parttime FROM employees WHERE type = "part-time"';
+export const UPDATE_PAYROLL_LATEST = `
+INSERT INTO payroll (amount_total, date_added)
+VALUES (?, ?)
+ON DUPLICATE KEY UPDATE
+amount_total = VALUES(amount_total)
+`;
 
 // api 
 export const ADD_NEW_EMPLOYEE = 'INSERT INTO employees (b_id, b_name, type, designation, monthly_salary, hourly_salary, sss, microdev, first_name, middle_name, last_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
@@ -113,3 +119,11 @@ export const GET_ALL_FACULTY_LOADS_BY_ID_QUERY = `
   WHERE fl.teacher_id = ?
   ORDER BY fl.id DESC;
 `;
+
+export const GET_DTR_BY_EMPLOYEE_AND_MONTH = `SELECT * FROM dtr
+    WHERE employee_id = ? 
+    AND DATE_FORMAT(date, '%M %Y') = ?`
+
+export const GET_ALL_EVENT_THIS_MONTH = `SELECT *
+FROM events
+WHERE DATE_FORMAT(start, '%M %Y') = ?;`

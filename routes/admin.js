@@ -14,6 +14,9 @@ import {
   COUNT_TOTAL_EMPLOYEES,
   COUNT_TOTAL_FULLTIME,
   COUNT_TOTAL_PARTTIME,
+  GET_DTR_BY_EMPLOYEE_AND_MONTH,
+  GET_ALL_EVENT_THIS_MONTH,
+  UPDATE_PAYROLL_LATEST
 } from '../db/services.js';
 import bcrypt from 'bcrypt';
 import Decimal from "decimal.js";
@@ -41,419 +44,370 @@ router.get('/dashboard', async (req, res) => {
     employees_data: await GET_ALL_EMPLOYEE(),
     dtrmonths_data: await GET_DTR_MONTHS(),
     allevents: await GET_EVENTS(),
-    eventsthismonth: await GET_EVENTS_MONTH(months[now.getMonth()] + " " + year),
+    eventsthismonth: await GET_EVENTS_MONTH(`${months[now.getMonth()]} ${year}`),
     eventsthismonthnum: 0,
     monthlyPayroll: {},
     today: (new Date()).toDateString(),
-  }
+  };
 
   data.eventsthismonthnum = data.eventsthismonth.length;
-
-  data.eventsthismonth.forEach(event => {
-    event.start = formatDate(event.start);
-    event.end = formatDate(event.end);
-  });
 
   data.allevents.forEach(event => {
     event.start = formatDate(event.start);
     event.end = formatDate(event.end);
   });
 
-  console.log(data);
-
-  // filter employees
+  // Filter only full-time employees
   data.employees_data = data.employees_data.filter(em => em.type === 'full-time');
   data.employees_data.forEach(em => {
     em.date_added = formatDate(em.date_added);
   });
 
+  // monthly payroll
   for (const monthName of months) {
-    const monthLabel = `${monthName} ${year}`;
-    let totalPayroll = 0;
-
-    // get events for this month
-    const events = await GET_EVENTS_MONTH(monthLabel);
-
-    for (const employee of data.employees_data) {
-      // do the same payroll calculation you already have
-      const employeedtr = await GET_DTR_FILTER_MONTH(monthLabel, employee.id);
-
-      // ⚡ Instead of repeating everything here, you can refactor your payroll calculation
-      // into a helper function:
-      const { netpay } = await calculateEmployeePayroll(
-        employee,
-        employeedtr,
-        events,
-        monthLabel
-      );
-
-      totalPayroll += netpay;
+    const month = `${monthName} ${year}`;
+    const hasDTR = data.dtrmonths_data.some(row => row.month_year === month);
+    if (!hasDTR) {
+      // No DTR for this month → Zero payroll
+      data.monthlyPayroll[month] = 0;
+      continue; 
     }
 
-    data.monthlyPayroll[monthName] = totalPayroll;
+
+    const employees = await GET_ALL_EMPLOYEE();
+
+    let total_payroll = 0;
+    let daysInMonth = 0;
+    let monthNameOnly;
+    let yearStr;
+
+    const events_month = await GET_EVENTS_MONTH(month);
+
+    for (let employee of employees) {
+      employee.absent = 0;
+      const empId = employee.b_id || employee.employee_id || employee.id;
+      if (!empId) continue;
+
+      const dtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH(empId, month);
+      let totalUndertime = 0;
+
+      const eventRanges = events_month.map(ev => ({
+        start: new Date(ev.start),
+        end: new Date(ev.end)
+      }));
+
+      const [mName, yStr] = month.split(" ");
+      monthNameOnly = mName;
+      yearStr = yStr;
+
+      const yy = parseInt(yearStr);
+      const mm = new Date(`${monthNameOnly} 1, ${yy}`).getMonth();
+      daysInMonth = new Date(yy, mm + 1, 0).getDate();
+
+      const dtrMap = {};
+      dtr.forEach(entry => {
+        const day = new Date(entry.date).getDate();
+        dtrMap[day] = entry;
+      });
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(yy, mm, day);
+        const dayOfWeek = date.getDay();
+        const entry = dtrMap[day];
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+        const isEventDay = eventRanges.some(ev => date >= ev.start && date <= ev.end);
+        if (isEventDay) continue;
+
+        const toMinutes = (timeStr) => {
+          if (!timeStr) return null;
+          const [time, period] = timeStr.split(' ');
+          let [hours, minutes] = time.split(':').map(Number);
+          if (period === 'AM' && hours === 12) hours = 0;
+          if (period === 'PM' && hours !== 12) hours += 12;
+          return hours * 60 + minutes;
+        };
+
+        const official = {
+          morning_in: toMinutes('8:00 AM'),
+          morning_out: toMinutes('12:00 PM'),
+          afternoon_in: toMinutes('1:00 PM'),
+          afternoon_out: toMinutes('5:00 PM')
+        };
+
+        let undertime = 0;
+
+        if (!entry || entry.message === 'ABSENT') {
+          undertime = 8 * 60;
+          totalUndertime += undertime;
+          employee.absent++;
+          continue;
+        }
+
+        const hasMorning = entry.morning_time_in || entry.morning_time_out;
+        const hasAfternoon = entry.afternoon_time_in || entry.afternoon_time_out;
+
+        if ((hasMorning && !hasAfternoon) || (!hasMorning && hasAfternoon)) {
+          undertime = 4 * 60;
+          totalUndertime += undertime;
+          continue;
+        }
+
+        const morning_in = toMinutes(entry.morning_time_in);
+        const morning_out = toMinutes(entry.morning_time_out);
+        const afternoon_in = toMinutes(entry.afternoon_time_in);
+        const afternoon_out = toMinutes(entry.afternoon_time_out);
+
+        if (morning_in && morning_in > official.morning_in)
+          undertime += morning_in - official.morning_in;
+
+        if (morning_out && morning_out < official.morning_out)
+          undertime += official.morning_out - morning_out;
+        else if (!morning_out)
+          undertime += 4 * 60;
+
+        if (afternoon_in && afternoon_in > official.afternoon_in)
+          undertime += afternoon_in - official.afternoon_in;
+
+        if (afternoon_out && afternoon_out < official.afternoon_out)
+          undertime += official.afternoon_out - afternoon_out;
+        else if (!afternoon_out)
+          undertime += 4 * 60;
+
+        totalUndertime += undertime;
+      }
+
+      employee.totalUndertimeMinutes = totalUndertime - (8 * 60);
+      employee.daily_salary = employee.monthly_salary / daysInMonth;
+      employee.hourly_salary = employee.daily_salary / 8;
+      employee.minutes_salary = employee.hourly_salary / 60;
+
+      employee.undertimeAmount = employee.totalUndertimeMinutes * employee.minutes_salary;
+      employee.salaryGross = employee.monthly_salary - employee.undertimeAmount;
+
+      employee.netpay =
+        employee.salaryGross -
+        (Number(employee.microdev) + Number(employee.pagibig) + Number(employee.sss));
+
+      total_payroll += employee.netpay;
+    }
+
+    console.log(month, " ", total_payroll);
+    data.monthlyPayroll[month] = total_payroll;
   }
-
-  async function calculateEmployeePayroll(employee, employeedtr, events, month) {
-    let totalUndertimeMinutes = 0;
-    let hasDTR = employeedtr.length > 0;
-
-    function formatLocalDate(date) {
-      const y = date.getFullYear();
-      const m = (date.getMonth() + 1).toString().padStart(2, '0');
-      const d = date.getDate().toString().padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function to12HourNoSuffix(time24) {
-      if (!time24) return "";
-      let [hour, minute] = time24.split(":").map(Number);
-      const suffix = hour >= 12 ? "PM" : "AM";
-      hour = hour % 12 || 12;
-      return `${hour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-    }
-
-    function minutesToHoursMinutes(totalMinutes) {
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    }
-
-    // Extract year/month
-    const [monthName, yearStr] = month.split(" ");
-    const monthIndex = new Date(`${monthName} 1, ${yearStr}`).getMonth();
-    const year = parseInt(yearStr);
-    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-    // Map DTR
-    const dtrMap = {};
-    employeedtr.forEach(entry => {
-      const day = new Date(entry.date).getDate();
-      dtrMap[day] = entry;
-    });
-
-    // Map events
-    const eventDates = new Set();
-    events.forEach(ev => {
-      const start = new Date(ev.start);
-      const end = new Date(ev.end);
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        eventDates.add(formatLocalDate(d));
-      }
-    });
-
-    // Loop days
-    for (let day = 1; day <= daysInMonth; day++) {
-      const entry = dtrMap[day];
-      const currentDateStr = formatLocalDate(new Date(year, monthIndex, day));
-      const dayOfWeek = new Date(year, monthIndex, day).getDay();
-
-      if (dayOfWeek === 0 || dayOfWeek === 6) continue; // weekend
-      if (eventDates.has(currentDateStr)) continue; // holiday/event
-
-      if (!entry) {
-        totalUndertimeMinutes += 8 * 60; 
-      } else if (entry?.message) {
-        continue; // skip if has message
-      } else {
-        const morning = [
-          to12HourNoSuffix(entry?.morning_time_in),
-          to12HourNoSuffix(entry?.morning_time_out)
-        ];
-        const afternoon = [
-          to12HourNoSuffix(entry?.afternoon_time_in),
-          to12HourNoSuffix(entry?.afternoon_time_out)
-        ];
-        totalUndertimeMinutes += calcUndertimeFromArrays(morning, afternoon);
-      }
-    }
-
-    // Salary calculation
-    const monthsalary = new Decimal(employee.monthly_salary);
-    const hourstotalmonth = new Decimal(daysInMonth).times(8);
-    const hourlyrate = monthsalary.div(hourstotalmonth);
-    const undertimeAmount = hourlyrate.times(totalUndertimeMinutes).div(60);
-
-    let salarygross = hasDTR ? monthsalary.minus(undertimeAmount) : new Decimal(0);
-
-    const deductions = new Decimal(employee.sss || 0)
-      .plus(employee.microdev || 0)
-      .plus(employee.pagibig || 0);
-
-    let netpay = Math.max(0, salarygross - deductions);
-    netpay = parseFloat(netpay.toFixed(2));
-
-    return {
-      undertime: minutesToHoursMinutes(totalUndertimeMinutes),
-      undertimeAmount: undertimeAmount.toFixed(2),
-      salarygross: salarygross.toFixed(2),
-      netpay
-    };
-
-    // helper inside
-    function calcUndertimeFromArrays(morning, afternoon) {
-      function toMinutes(timeStr) {
-        if (!timeStr) return null;
-        const [time, period] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-        if (period === 'AM' && hours === 12) hours = 0;
-        if (period === 'PM' && hours !== 12) hours += 12;
-        return hours * 60 + minutes;
-      }
-
-      const official = {
-        morning_in: toMinutes('8:00 AM'),
-        morning_out: toMinutes('12:00 PM'),
-        afternoon_in: toMinutes('1:00 PM'),
-        afternoon_out: toMinutes('5:00 PM')
-      };
-
-      const morning_in = toMinutes(morning[0]);
-      const morning_out = toMinutes(morning[1]);
-      const afternoon_in = toMinutes(afternoon[0]);
-      const afternoon_out = toMinutes(afternoon[1]);
-
-      let undertime = 0;
-
-      if (morning_in !== null && morning_in > official.morning_in) {
-        undertime += morning_in - official.morning_in;
-      }
-      if (morning_out !== null) {
-        if (morning_out < official.morning_out) undertime += official.morning_out - morning_out;
-      } else {
-        undertime += 4 * 60;
-      }
-
-      if (afternoon_in !== null && afternoon_in > official.afternoon_in) {
-        undertime += afternoon_in - official.afternoon_in;
-      }
-      if (afternoon_out !== null) {
-        if (afternoon_out < official.afternoon_out) undertime += official.afternoon_out - afternoon_out;
-      } else {
-        undertime += 4 * 60;
-      }
-
-      if (undertime > 8 * 60) undertime = 8 * 60;
-      return undertime;
-    }
-  }
-
-
-  console.log(data);
-  
   res.render('admin/dashboard', data);
 });
 
+
 router.get('/payroll', async (req, res) => {
-  const month = req.query.month; 
-  let data = {
-    title: "Payroll",
-    name: req.name,
-    employees: await GET_ALL_EMPLOYEE(),
-    dtrmonths: await GET_DTR_MONTHS(),
-    totalPayroll: 0,
-    today: (new Date()).toDateString(),
-  };
-  
-  // Format employee date_added
-  data.employees = data.employees.filter(em => em.type === 'full-time');
-  data.employees.forEach(em => {
-    em.date_added = formatDate(em.date_added);  
-  });
-
-
-  if (month){
-    data.events = await GET_EVENTS_MONTH(month);
-    for (const employee of data.employees) {
-      if (employee.type.toLowerCase() === 'full-time'){
-
-        function formatLocalDate(date) {
-            const y = date.getFullYear();
-            const m = (date.getMonth() + 1).toString().padStart(2, '0');
-            const d = date.getDate().toString().padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-
-
-        function to12HourNoSuffix(time24) {
-            if (!time24) return ""; // handle null/empty
-            let [hour, minute] = time24.split(":").map(Number);
-            const suffix = hour >= 12 ? "PM" : "AM"; // determine AM or PM
-            hour = hour % 12 || 12;                  // convert 0 → 12, 13 → 1, etc.
-            return `${hour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-        }
-        
-        function minutesToHoursMinutes(totalMinutes) {
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        }
-
-        const employeedtr = await GET_DTR_FILTER_MONTH(month, employee.id);
-        let totalUndertimeMinutes = 0;
-        let hasDTR = employeedtr.length > 0;
-        
-        // Extract year and month index from selectedMonth, e.g., "August 2025"
-        const [monthName, yearStr] = month.split(" ");
-        const monthIndex = new Date(`${monthName} 1, ${yearStr}`).getMonth(); // 0-based
-        const year = parseInt(yearStr);
-        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-        // Map DTR data by day
-        const dtrMap = {};
-        employeedtr.forEach(entry => {
-            const day = new Date(entry.date).getDate();
-            dtrMap[day] = entry;
-        });
-
-        // get events
-        const eventDates = new Set();
-        data.events.forEach(ev => {
-            const start = new Date(ev.start);
-            const end = new Date(ev.end);
-            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                const dateStr = formatLocalDate(d); // use local date
-                eventDates.add(dateStr);
-            }
-        });
-        
-        // Loop through all days
-        for (let day = 1; day <= daysInMonth; day++) {
-            const entry = dtrMap[day];
-            const currentDateStr = formatLocalDate(new Date(year, monthIndex, day));
-            const dayOfWeek = new Date(year, monthIndex, day).getDay();
-
-            if (dayOfWeek === 6) { // Saturday
-                
-            } else if (dayOfWeek === 0) { // Sunday
-                
-            } else if (eventDates.has(currentDateStr)) { // Weekday with event
-                
-            } else { // Weekdays
-                if (!entry){
-                  totalUndertimeMinutes += 8 * 60; 
-                  // console.log(employee, " IS ABSENT", entry);
-                } else if (entry?.message){
-                    
-                } else {
-
-                    if (employee.id === 4){
-                      console.log(employee, " IS PRESENT", entry);
-                    }
-                    const morning = [
-                        to12HourNoSuffix(entry?.morning_time_in),
-                        to12HourNoSuffix(entry?.morning_time_out)
-                        ];
-
-                    const afternoon = [
-                        to12HourNoSuffix(entry?.afternoon_time_in),
-                        to12HourNoSuffix(entry?.afternoon_time_out)
-                    ];
-
-                    calculateUndertimeFromArrays(morning, afternoon)
-                }
-            }
-        }
-
-        // employeedtr
-        // console.log(employeedtr);
-        console.log(employee.first_name, totalUndertimeMinutes);
-        
-        function calculateUndertimeFromArrays(morning, afternoon) {
-            function toMinutes(timeStr) {
-                if (!timeStr) return null; // null if no time
-                const [time, period] = timeStr.split(' ');
-                let [hours, minutes] = time.split(':').map(Number);
-
-                if (period === 'AM' && hours === 12) hours = 0;
-                if (period === 'PM' && hours !== 12) hours += 12;
-
-                return hours * 60 + minutes;
-            }
-
-            // Official hours in minutes
-            const official = {
-                morning_in: toMinutes('8:00 AM'),
-                morning_out: toMinutes('12:00 PM'),
-                afternoon_in: toMinutes('1:00 PM'),
-                afternoon_out: toMinutes('5:00 PM')
-            };
-
-            const morning_in = toMinutes(morning[0]);
-            const morning_out = toMinutes(morning[1]);
-            const afternoon_in = toMinutes(afternoon[0]);
-            const afternoon_out = toMinutes(afternoon[1]);
-
-            let undertime = 0;
-
-            // Morning
-            if (morning_in !== null && morning_in > official.morning_in) {
-                undertime += morning_in - official.morning_in;
-            }
-            if (morning_out !== null) {
-                if (morning_out < official.morning_out) undertime += official.morning_out - morning_out;
-            } else {
-                // Missing morning out → full 4 hours
-                undertime += 4 * 60;
-            }
-
-            // Afternoon
-            if (afternoon_in !== null && afternoon_in > official.afternoon_in) {
-                undertime += afternoon_in - official.afternoon_in;
-            }
-            if (afternoon_out !== null) {
-                if (afternoon_out < official.afternoon_out) undertime += official.afternoon_out - afternoon_out;
-            } else {
-                // Missing afternoon out → full 4 hours
-                undertime += 4 * 60;
-            }
-
-            // Cap maximum undertime to 8 hours
-            if (undertime > 8 * 60) undertime = 8 * 60;
-
-            // Convert minutes to HH:MM
-            const hours = Math.floor(undertime / 60);
-            const minutes = undertime % 60;
-
-            totalUndertimeMinutes += undertime;
-            return `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`;
-        }
-
-        // append total undertime to employee
-        employee.undertime = minutesToHoursMinutes(totalUndertimeMinutes);
-
-        // calculate undertime amount
-        const monthsalary = new Decimal(employee.monthly_salary);
-        const hourstotalmonth = new Decimal(daysInMonth).times(8);
-        const hourlyrate = monthsalary.div(hourstotalmonth);
-        const undertimeAmount = hourlyrate.times(totalUndertimeMinutes).div(60);
-        let salarygross;
-
-        if (!hasDTR) {
-            // ✅ No DTR at all → full 0 salary
-            salarygross = new Decimal(0);
-        } else {
-            salarygross = monthsalary.minus(undertimeAmount);
-        }
-
-
-        // format for display (2 decimal places, no rounding errors)
-        employee.undertimeAmount = undertimeAmount.toFixed(2);
-        employee.salarygross = salarygross.toFixed(2);
-        const deductions = new Decimal(employee.sss || 0)
-          .plus(employee.microdev || 0)
-          .plus(employee.pagibig || 0);
-
-        employee.netpay = Math.max(0, salarygross - deductions);
-        employee.netpay = parseFloat(employee.netpay.toFixed(2));
-        data.totalPayroll += employee.netpay;
-      }
+  try {
+    const month = req.query.month; 
+    let monthName;
+    let yearStr;
+    let daysInMonth;
+    
+    let data = {
+      title: "Payroll",
+      name: req.name,
+      employees: await GET_ALL_EMPLOYEE(),
+      dtrmonths: await GET_DTR_MONTHS(),
+      totalPayroll: 0,
+      today: (new Date()).toDateString(),
     };
+
+    // Filter only full-time employees
+    data.employees = data.employees.filter(em => em.type === 'full-time');
+
+    // Format employee date_added
+    data.employees.forEach(em => {
+      em.date_added = formatDate(em.date_added);  
+    });
+
+    if (month) {
+      let total_payroll = 0;
+
+      console.log(month);
+      const events_month = await GET_EVENTS_MONTH(month);
+      // console.log(events_month);
+      
+      for (let employee of data.employees) {
+        employee.absent = 0;
+        const empId = employee.b_id || employee.employee_id || employee.id;
+        if (!empId) continue;
+
+        const dtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH(empId, month);
+        let totalUndertime = 0;
+
+        // Convert event date strings to Date objects
+        const eventRanges = events_month.map(ev => ({
+          start: new Date(ev.start),
+          end: new Date(ev.end)
+        }));
+
+        // --- extract year/month info ---
+        const [mName, yStr] = month.split(" ");
+        monthName = mName;
+        yearStr = yStr;
+
+        const year = parseInt(yearStr);
+        const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+        const days = new Date(year, monthIndex + 1, 0).getDate();
+        daysInMonth = days;
+
+        const dtrMap = {};
+        dtr.forEach(entry => {
+          const day = new Date(entry.date).getDate();
+          dtrMap[day] = entry;
+        });
+
+        // console.log(daysInMonth);
+        for (let day = 1; day <= daysInMonth; day++) {
+          // console.log(day);
+          const date = new Date(year, monthIndex, day);
+          const dayOfWeek = date.getDay();
+          const entry = dtrMap[day];
+          // Skip weekends (Saturday = 6, Sunday = 0)
+          if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+          // ✅ Skip if this day is within an event range
+          const isEventDay = eventRanges.some(ev => date >= ev.start && date <= ev.end);
+          if (isEventDay) continue; // no undertime / no absent if event day
+
+          // --- Convert to minutes ---
+          const toMinutes = (timeStr) => {
+            if (!timeStr) return null;
+            const [time, period] = timeStr.split(' ');
+            let [hours, minutes] = time.split(':').map(Number);
+            if (period === 'AM' && hours === 12) hours = 0;
+            if (period === 'PM' && hours !== 12) hours += 12;
+            return hours * 60 + minutes;
+          };
+
+          const official = {
+            morning_in: toMinutes('8:00 AM'),
+            morning_out: toMinutes('12:00 PM'),
+            afternoon_in: toMinutes('1:00 PM'),
+            afternoon_out: toMinutes('5:00 PM')
+          };
+
+          let undertime = 0;
+
+          // --- CASE 1: Absent whole day ---
+          if (!entry || entry.message === 'ABSENT') {
+            undertime = 8 * 60; // 8 hours
+            totalUndertime += undertime;
+            employee.absent++;
+            continue;
+          }
+
+          // --- CASE 2: Half-day present ---
+          const hasMorning = entry.morning_time_in || entry.morning_time_out;
+          const hasAfternoon = entry.afternoon_time_in || entry.afternoon_time_out;
+          if ((hasMorning && !hasAfternoon) || (!hasMorning && hasAfternoon)) {
+            undertime = 4 * 60; // 4 hours
+            totalUndertime += undertime;
+            continue;
+          }
+
+          // --- CASE 3: Present but late/early out ---
+          const morning_in = toMinutes(entry.morning_time_in);
+          const morning_out = toMinutes(entry.morning_time_out);
+          const afternoon_in = toMinutes(entry.afternoon_time_in);
+          const afternoon_out = toMinutes(entry.afternoon_time_out);
+
+          // Morning
+          if (morning_in !== null && morning_in > official.morning_in)
+            undertime += morning_in - official.morning_in;
+
+          if (morning_out !== null && morning_out < official.morning_out)
+            undertime += official.morning_out - morning_out;
+          else if (morning_out === null)
+            undertime += 4 * 60;
+
+          // Afternoon
+          if (afternoon_in !== null && afternoon_in > official.afternoon_in)
+            undertime += afternoon_in - official.afternoon_in;
+
+          if (afternoon_out !== null && afternoon_out < official.afternoon_out)
+            undertime += official.afternoon_out - afternoon_out;
+          else if (afternoon_out === null)
+            undertime += 4 * 60;
+
+          // if (undertime > 8 * 60) undertime = 8 * 60;
+
+          totalUndertime += undertime;
+        }
+
+        employee.totalUndertimeMinutes = totalUndertime - (8 * 60);
+        employee.totalUndertimeFormatted = minutesToHHMM(totalUndertime - (8 * 60));
+
+        function calculateUndertimeDeduction(totalUndertimeMinutes, monthlySalary, workingDays, hoursPerDay = 8) {
+          var undertimeHours = totalUndertimeMinutes / 60;
+
+          // Total working hours in the month
+          var totalWorkingHours = workingDays * hoursPerDay;
+
+          // Hourly rate
+          var hourlyRate = monthlySalary / totalWorkingHours;
+
+          // Undertime deduction
+          var deduction = undertimeHours * hourlyRate;
+
+          return deduction;
+        }
+
+        var undertimeAmount = calculateUndertimeDeduction(employee.totalUndertimeMinutes, employee.monthly_salary, daysInMonth);
+        // console.log("Undertime deduction: ₱" + undertimeAmount.toFixed(2)); // ₱1132.88
+
+        // daily salary
+        employee.daily_salary = employee.monthly_salary / daysInMonth;
+        employee.hourly_salary = employee.daily_salary / 8;
+        employee.minutes_salary = employee.hourly_salary / 60;
+        
+      
+        employee.undertimeAmount = employee.totalUndertimeMinutes * employee.minutes_salary;
+        employee.salaryGross = employee.monthly_salary - undertimeAmount;
+        employee.netpay = employee.salaryGross - (Number(employee.microdev) + Number(employee.pagibig) + Number(employee.sss))
+
+        if (employee.first_name === 'ernesto'){
+          console.log("monthly salary: ", employee.monthly_salary);
+          console.log("daily salary: ", employee.daily_salary);
+          console.log("hourly salary: ", employee.hourly_salary);
+          console.log("minutes salary: ", employee.minutes_salary);
+          console.log("undertime minutes: ", employee.totalUndertimeMinutes);
+          console.log("undertime minutes formatted: ", employee.totalUndertimeFormatted);
+          console.log("undertime value: ", employee.totalUndertimeMinutes * employee.minutes_salary);
+        }
+
+        total_payroll += employee.netpay;
+      }
+
+      data.monthDuration = monthName + " 1-" + daysInMonth + " " + yearStr;
+      data.daysInMonth = daysInMonth;
+
+      // console.log("Payroll Data:", data.employees.map(e => ({
+      //   id: e.b_id || e.employee_id || e.id,
+      //   undertime: e.totalUndertimeFormatted
+      // })));
+
+      await UPDATE_PAYROLL_LATEST(total_payroll, month);
+    }
+    // console.log(data);
+    res.render('admin/payroll', data);
+
+  } catch (error) {
+    console.error("Payroll Error:", error);
+    res.status(500).send("Server Error");
   }
-
-  console.log(data.totalPayroll.toLocaleString());
-  res.render('admin/payroll', data);
-
 });
+
+function minutesToHHMM(totalMinutes) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+}
+
 
 router.get('/payroll-part-time', async (req, res) => {
   const parseTime12 = (timeStr) => {
@@ -662,7 +616,7 @@ router.get('/uploads', async (req, res) => {
     file.date_added = formatDate(file.date_added);
   });
 
-  console.log(data);
+  // console.log(data);
   
   res.render('admin/uploads', data);
 });

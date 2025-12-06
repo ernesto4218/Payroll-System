@@ -110,11 +110,11 @@
             <td><span class="text-center"><%= Number(employee.monthly_salary).toLocaleString('en-PH',  { style: 'currency', currency: 'PHP',  maximumFractionDigits: 0 }) %></span></td>
             <td class="text-center">
               <div class="flex flex-row items-center">
-                <span class="w-full text-center"><%= employee.undertime %></span>
+                <span class="w-full text-center"><%= employee.totalUndertimeFormatted %></span>
                 <span class="w-full text-end"><%= Number(employee.undertimeAmount).toLocaleString('en-PH',  { style: 'currency', currency: 'PHP',  maximumFractionDigits: 0 }) %></span>
               </div>
             </td>
-            <td class="flex flex-row items-center justify-end"><span class="capitalize text-end w-full"><%= Number(employee.salarygross).toLocaleString('en-PH',  { style: 'currency', currency: 'PHP',  maximumFractionDigits: 0 }) %></span></td>
+            <td class="flex flex-row items-center justify-end"><span class="capitalize text-end w-full"><%= Number(employee.salaryGross).toLocaleString('en-PH',  { style: 'currency', currency: 'PHP',  maximumFractionDigits: 0 }) %></span></td>
             <td class="text-center">
               <div class="flex flex-row items-center justify-between">
                 <span class="text-center w-20"><%= Number(employee.sss).toLocaleString('en-PH',  { style: 'currency', currency: 'PHP',  maximumFractionDigits: 0 }) %></span>

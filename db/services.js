@@ -88,6 +88,16 @@ export async function COUNT_TOTAL_PARTTIME() {
   return rows[0].total_parttime;
 }
 
+export async function UPDATE_PAYROLL_LATEST(amount, month) {
+  const [result] = await db.execute(
+    queries.UPDATE_PAYROLL_LATEST,
+    [amount, month]
+  );
+  return result.affectedRows > 0;
+}
+
+
+
 // api
 export async function GET_EMPLOYEE_BY_ID(id) {
   const [rows] = await db.execute(queries.GET_EMPLOYEE_BY_ID, [id]);
@@ -193,4 +203,14 @@ export async function DELETE_FACULTY_LOAD_BY_ID(id) {
   const [result] = await db.execute(queries.DELETE_FACULTY_LOAD_BY_ID
 , [id]);
   return result.affectedRows > 0;
+}
+
+export async function GET_DTR_BY_EMPLOYEE_AND_MONTH(employeeId, month) {
+  const [result] = await db.execute(queries.GET_DTR_BY_EMPLOYEE_AND_MONTH, [employeeId, month]);
+  return result;
+}
+
+export async function GET_ALL_EVENT_THIS_MONTH(month) {
+  const [result] = await db.execute(queries.GET_ALL_EVENT_THIS_MONTH, [month]);
+  return result;
 }
