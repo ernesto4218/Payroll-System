@@ -27,7 +27,10 @@ import {
   DELETE_FACULTY_LOAD_BY_ID,
   GET_ALL_FACULTY_LOADS,
   GET_ALL_FACULTY_LOADS_BY_ID,
-  GET_EMPLOYEE_BY_B_ID
+  GET_EMPLOYEE_BY_B_ID,
+  GET_DTR_BY_EMPLOYEE_AND_MONTH,
+  GET_DTR_BY_EMPLOYEE_AND_MONTH_DAY_YEAR,
+  GET_DTR_FILTER_MONTH_YEAR
 } from '../db/services.js';
 import fs from "fs";
 import readline from "readline";
@@ -191,6 +194,60 @@ router.post('/edit-record', async (req, res) => {
           message: 'Record edited successfully',
           // formData: formFields,
       });
+    } else {
+      res.status(200).json({ message: 'Employee does not exists.' });
+    }
+  
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ message: 'Error saving data' });
+  }
+});
+
+router.post('/update-dtr-record-by-employee-id', async (req, res) => {
+  try {
+    const formFields = req.body;
+    console.log(formFields);
+
+    const user = await GET_EMPLOYEE_BY_B_ID(formFields.employee_id);
+
+    console.log(user);
+
+    if (user){
+      const dtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH_DAY_YEAR(user.b_id, formFields.date);
+      console.log(dtr);
+
+      if (dtr.length > 1){
+        
+        await UPDATE_RECORD_BY_ID(
+          formFields.dtr[0] || "",
+          formFields.dtr[1] || "",
+          formFields.dtr[2] || "",
+          formFields.dtr[3] || "",
+          formFields.date,
+          formFields.employee_id,
+        );      
+        
+        res.status(200).json({
+            success: true,
+            message: 'Record edited successfully',
+        });
+      } else {
+        await INSERT_DTR(
+          formFields.employee_id,
+          formFields.dtr[0] || "",
+          formFields.dtr[1] || "",
+          formFields.dtr[2] || "",
+          formFields.dtr[3] || "",
+          formFields.date,
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Record added successfully',
+        });
+      }
+      
     } else {
       res.status(200).json({ message: 'Employee does not exists.' });
     }
@@ -708,7 +765,9 @@ router.post('/select-month', async (req, res) => {
     console.log(facultyload);
     console.log(get_employee_info);
 
-    const dtr = await GET_DTR_FILTER_MONTH(formFields.month, get_employee_info.b_id);
+    // const dtr = await GET_DTR_FILTER_MONTH(formFields.month, get_employee_info.b_id);
+    const dtr = await GET_DTR_FILTER_MONTH_YEAR(formFields.month, get_employee_info.b_id);
+
     console.log(dtr);
 
     res.status(200).json({
@@ -748,21 +807,35 @@ router.post('/select-month-payroll', async (req, res) => {
 router.post('/select-month-record', async (req, res) => {
   try {
     const formFields = req.body;
+    const filter = formFields.month + " " + formFields.year;
+
+    const monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    const monthNumber = monthNames.indexOf(formFields.month) + 1;
+    const daysInMonth = new Date(formFields.year, monthNumber, 0).getDate();
 
     console.log(formFields.month);
+    console.log(formFields.year);
     console.log(formFields.id);
 
-    const get_employee_info = await GET_EMPLOYEE_BY_B_ID(formFields.id);
-    const dtr = await GET_DTR_FILTER_MONTH(formFields.month, formFields.id);
+    console.log(filter);
 
+    const get_employee_info = await GET_EMPLOYEE_BY_B_ID(formFields.id);
+    const dtr = await GET_DTR_FILTER_MONTH(filter, formFields.id);
+
+    // console.log(dtr);
     res.status(200).json({
       success: true,
       dtr: dtr,
-      employee: get_employee_info
+      month: formFields.month,
+      daysinmonth: daysInMonth,
+      employee: get_employee_info,
     });
     
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('error:', error);
     res.status(500).json({ message: 'Error saving data' });
   }
 });

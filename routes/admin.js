@@ -22,6 +22,29 @@ import bcrypt from 'bcrypt';
 import Decimal from "decimal.js";
 import dayjs from "dayjs";
 
+const all_years = [
+  { value: 2022 },
+  { value: 2023 },
+  { value: 2024 },
+  { value: 2025 },
+  { value: 2026 },
+];
+
+const all_months = [
+  { value: 'January' },
+  { value: 'February' },
+  { value: 'March' },
+  { value: 'April' },
+  { value: 'May' },
+  { value: 'June' },
+  { value: 'July' },
+  { value: 'August' },
+  { value: 'September' },
+  { value: 'October' },
+  { value: 'November' },
+  { value: 'December' },
+];
+
 
 const router = express.Router();
 
@@ -211,7 +234,8 @@ router.get('/payroll', async (req, res) => {
       title: "Payroll",
       name: req.name,
       employees: await GET_ALL_EMPLOYEE(),
-      dtrmonths: await GET_DTR_MONTHS(),
+      dtrmonths: all_months,
+      dtryears: all_years,
       totalPayroll: 0,
       today: (new Date()).toDateString(),
     };
@@ -360,7 +384,7 @@ router.get('/payroll', async (req, res) => {
         var undertimeAmount = calculateUndertimeDeduction(employee.totalUndertimeMinutes, employee.monthly_salary, daysInMonth);
         // console.log("Undertime deduction: ₱" + undertimeAmount.toFixed(2)); // ₱1132.88
 
-        // daily salary
+        // Salary Calculation
         employee.daily_salary = employee.monthly_salary / daysInMonth;
         employee.hourly_salary = employee.daily_salary / 8;
         employee.minutes_salary = employee.hourly_salary / 60;
@@ -552,17 +576,15 @@ router.get('/employees', async (req, res) => {
     title: "Employees",
     name: req.name,
     employees: await GET_ALL_EMPLOYEE(),
-    dtrmonths: await GET_DTR_MONTHS(),
+    dtrmonths: all_months,
+    dtryear: all_years,
     today: (new Date()).toDateString(),
   }
   
-
   data.employees.forEach(em => {
     em.date_added = formatDate(em.date_added);  
   });
 
-  console.log(data);
-  
   res.render('admin/employees', data);
 });
 

@@ -39,7 +39,7 @@ amount_total = VALUES(amount_total)
 // api 
 export const ADD_NEW_EMPLOYEE = 'INSERT INTO employees (b_id, b_name, type, designation, monthly_salary, hourly_salary, sss, microdev, first_name, middle_name, last_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 export const UPDATE_EMPLOYEE_BY_ID = 'UPDATE employees SET b_name = ?, type = ?, designation = ?, monthly_salary = ?, hourly_salary = ?, sss = ?, microdev = ?, first_name = ?, middle_name = ?, last_name = ? WHERE b_id = ?';
-export const UPDATE_RECORD_BY_ID = 'UPDATE dtr SET morning_time_in = ?, morning_time_out = ?, afternoon_time_in = ?, afternoon_time_out = ? WHERE id = ? AND employee_id = ?';
+export const UPDATE_RECORD_BY_ID = 'UPDATE dtr SET morning_time_in = ?, morning_time_out = ?, afternoon_time_in = ?, afternoon_time_out = ? WHERE date = ? AND employee_id = ?';
 export const INSERT_FILE_UPLOAD = 'INSERT INTO file_upload (file_name, path) VALUES (?, ?)';
 export const INSERT_DTR = `
   INSERT INTO dtr (
@@ -75,6 +75,12 @@ export const GET_DTR_FILTER_MONTH = `SELECT *
     WHERE employee_id = ?
       AND DATE_FORMAT(date, '%M %Y') = ?;
   `;
+
+export const GET_DTR_FILTER_MONTH_YEAR = `SELECT *
+  FROM dtr
+  WHERE employee_id = ?
+    AND DATE_FORMAT(date, '%M %Y') = ?;
+`;
 
 export const GET_DTR_FILTER_MONTH_PAYROLL = `SELECT *
     FROM dtr
@@ -130,6 +136,10 @@ export const GET_ALL_FACULTY_LOADS_BY_ID_QUERY = `
 export const GET_DTR_BY_EMPLOYEE_AND_MONTH = `SELECT * FROM dtr
     WHERE employee_id = ? 
     AND DATE_FORMAT(date, '%M %Y') = ?`
+
+export const GET_DTR_BY_EMPLOYEE_AND_MONTH_DAY_YEAR = `SELECT * FROM dtr
+WHERE employee_id = ?
+AND date = ?`
 
 export const GET_ALL_EVENT_THIS_MONTH = `SELECT *
 FROM events
