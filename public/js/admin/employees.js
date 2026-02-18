@@ -138,7 +138,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
     const yearselectordtr = document.getElementById('yearselectordtr');
     const monthselectordtr = document.getElementById('monthselectordtr');
     const filterdtremployeebtndtr = document.getElementById('filterdtremployeebtndtr');
-
+    const filterdtremployeebtndtrcontainer = document.getElementById('filterdtremployeebtndtrcontainer');
     let selected_employee_id = 0;
 
     var totalUndertimeMinutes = 0;
@@ -792,8 +792,11 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             console.log(yearselectordtr.value);
             console.log(monthselectordtr.value);
 
+            filterdtremployeebtndtrcontainer.style.display = "flex";
             filterdtremployeebtndtr.style.display = "flex";
+
         } else {
+            filterdtremployeebtndtrcontainer.style.display = "flex";
             filterdtremployeebtndtr.style.display = "none";
         }
     }
@@ -1351,3 +1354,5 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
     });
 
 }
+
+
