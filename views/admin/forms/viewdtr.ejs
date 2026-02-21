@@ -14,13 +14,12 @@
     visibility: visible;
   }
 
-  .dtrprintcontainer {
+    .dtrprintcontainer {
     position: fixed;
-    top: 0;
-    left: 0;
-    transform: scale(0.83);
-    transform-origin: top left;
-  }
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.80);
+    }
 }
 </style>
 
@@ -59,7 +58,7 @@
             </div>
             <svg id="closedtrform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 h-10 mr-4 p-3 text-black hover:bg-gray-300 rounded-xl cursor-pointer" fill="currentColor"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
         </div>
-        <div class="flex flex-row dtrprintcontainer">
+        <div class="flex flex-row dtrprintcontainer w-[2550px] h-[3900px]">
             <div id="gendtr" class="w-[50%] p-10">
                 <p class="text-xs font-normal text-black mb-10">Civil Service Form No. 48</p>
                 <p class="text-sm font-bold text-black text-center">DAILY TIME RECORD</p>
@@ -88,10 +87,10 @@
                             <th class="w-12 border-2 border-black px-1 py-1" rowspan="2">Day</th>
 
                             <!-- A.M. header spanning 2 sub-columns -->
-                            <th class="border-2 w-30 border-black px-1 py-1 text-center" colspan="2">A. M.</th>
+                            <th class="border-2 w-40 border-black px-1 py-1 text-center" colspan="2">A. M.</th>
 
                             <!-- P.M. header spanning 2 sub-columns -->
-                            <th class="border-2 w-30 border-black px-1 py-1 text-center" colspan="2">P. M.</th>
+                            <th class="border-2 w-40 border-black px-1 py-1 text-center" colspan="2">P. M.</th>
 
                             <!-- UNDERTIME header spanning 2 sub-columns -->
                             <th class="w-20 border-2 border-black px-1 py-1 text-center" colspan="2">UNDERTIME</th>
