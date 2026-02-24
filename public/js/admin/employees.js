@@ -1006,6 +1006,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                         }
                     });
 
+                    
                     // Loop through all days
                     for (let day = 1; day <= daysInMonth; day++) {
                         const entry = dtrMap[day];
