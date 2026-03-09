@@ -1,6 +1,8 @@
 if (document.getElementById("search-table") && typeof simpleDatatables.DataTable !== 'undefined') {
 
     const table = new simpleDatatables.DataTable("#search-table", {
+        perPage: 15,
+        perPageSelect: false,
         template: (options, dom) => "<div class='" + options.classes.top + "'>" +
             "<div class='flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-3 rtl:space-x-reverse w-full sm:w-auto'>" +
             (options.paging && options.perPageSelect ?
@@ -57,7 +59,7 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
             "<nav class='" + options.classes.pagination + "'></nav>" +
         "</div>"
     })
-    
+
     const $exportButton = document.getElementById("exportDropdownButton");
     const $exportDropdownEl = document.getElementById("exportDropdown");
     const visibleColumnIndexes = table.columns.settings
@@ -95,30 +97,304 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         });
     });
 
+    const releasefulltimeparent = document.getElementById('releasefulltimeparent');
     const search = document.querySelector('.datatable-search');
     const monthdata = JSON.parse(document.getElementById('search-table').getAttribute('data-months'));
+    const yearsdata = JSON.parse(document.getElementById('search-table').getAttribute('data-years'));
+
     console.log(monthdata);
     search.classList.add('flex','flex-row','gap-2','items-center');
 
     search.innerHTML += `
-        <form class="w-50">
-        <select id="selectmonth" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5">
-            <option selected disabled>Choose</option>
-        </select>
+        <form class="w-full flex flex-row gap-1">
+            <select id="selectmonth" class="w-30 flex bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-2.5">
+                <option selected value="" disabled>Month</option>
+            </select>
+            <select id="selectyear" class="w-24 flex bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-2.5">
+                <option selected value="" disabled>Year</option>
+            </select>
+            <button id="filterpayrollbtn" type="button" class="hidden items-center justify-center flex-row gap-2 text-xs bg-neutral-secondary-medium border border-default-medium text-heading box-border focus:ring-2 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-xl px-2 py-2 focus:outline-none">
+                Get Payroll
+
+                <svg class="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m14 0-4 4m4-4-4-4"/>
+                </svg>
+
+            </button>
         </form>
+
+        <button id="dropdownDividerButton" data-dropdown-toggle="dropdownDivider" class="text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center w-fit" type="button">Attachments <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+            </svg>
+        </button>
+
+        <div id="dropdownDivider" class="hidden bg-white divide-y divide-gray-800 rounded-lg shadow-sm w-44">
+            <div class="">
+                <a href="/admin/payroll-part-time" class="hidden">
+                    <button type="button" class="flex flex-row cursor-pointer gap-2 items-center text-gray-600 bg-none font-medium rounded-lg text-xs px-2.5 py-2.5">
+                    <svg class="w-4 h-4 fill-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 312C386.3 312 440 258.3 440 192C440 125.7 386.3 72 320 72C253.7 72 200 125.7 200 192C200 258.3 253.7 312 320 312zM290.3 368C191.8 368 112 447.8 112 546.3C112 562.7 125.3 576 141.7 576L498.3 576C514.7 576 528 562.7 528 546.3C528 447.8 448.2 368 349.7 368L290.3 368z"/></svg>
+                    Part Time</button>
+                </a>
+                <a id="releasepayrollbtn" href="#">
+                    <button type="button" class="border-t border-gray-200 hover:bg-gray-100 w-full flex flex-row cursor-pointer gap-2 items-center text-gray-600 bg-none font-medium text-xs px-2.5 py-2.5">
+                    <svg class="w-4 h-4 fill-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
+                    Print Payroll</button>
+                </a>
+                <a id="disbursementbtn">
+                    <button type="button" class="border-t border-gray-200 hover:bg-gray-100 w-full flex flex-row cursor-pointer gap-2 items-center text-gray-600 bg-none font-medium text-xs px-2.5 py-2.5">
+                        <svg class="w-4 h-4 fill-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
+                    Disbursement</button>
+                </a>
+
+                <a id="obligationbtbn">
+                    <button type="button" class="border-t border-gray-200 hover:bg-gray-100 w-full flex flex-row cursor-pointer gap-2 items-center text-gray-600 bg-none font-medium text-xs px-2.5 py-2.5">
+                        <svg class="w-4 h-4 fill-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 368L310.1 368L279.1 337C269.7 327.6 269.7 312.4 279.1 303.1C288.5 293.8 303.7 293.7 313 303.1L385 375.1C394.4 384.5 394.4 399.7 385 409L313 481C303.6 490.4 288.4 490.4 279.1 481C269.8 471.6 269.7 456.4 279.1 447.1L310.1 416.1L128 416.1L128 512.1C128 547.4 156.7 576.1 192 576.1L448 576.1C483.3 576.1 512 547.4 512 512.1L512 234.6C512 217.6 505.3 201.3 493.3 189.3L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>
+                    Obligation</button>
+                </a>
+            </div>
+            
+        </div>
+        
     `
-    const select = document.getElementById('selectmonth');
+
+    let selected_month;
+    const selectmonth = document.getElementById('selectmonth');
+    const selectyearel = document.getElementById('selectyear');
+    const filterpayrollbtn = document.getElementById('filterpayrollbtn');
+
     monthdata.forEach(item => {
         const option = document.createElement('option');
-        option.value = item.month_year;
-        option.textContent = item.month_year;
-        select.appendChild(option);
+        option.value = item.value;
+        option.textContent = item.value;
+        selectmonth.appendChild(option);
     });
 
-    select.addEventListener('change', function () {
-        const selected = this.value;
-        if (selected) {
-            window.location.href = `?month=${encodeURIComponent(selected)}`;
-        }
+    const selectyear = document.getElementById('selectyear');
+    yearsdata.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = item.value;
+        selectyear.appendChild(option);
     });
+
+    selectmonth.addEventListener('change', () => {
+        filterpayrollbtnshow();
+    });
+
+    selectyearel.addEventListener('change', () => {
+        filterpayrollbtnshow();
+    });
+
+    function filterpayrollbtnshow(){
+        if (selectmonth.value && selectyearel.value) {
+            console.log(selectyearel.value);
+            console.log(selectmonth.value);
+
+            window.location.href = `?month=${encodeURIComponent(selectmonth.value + " " + selectyearel.value)}`;
+        }
+    }
+
+    const releasepayrollbtn = document.getElementById('releasepayrollbtn');
+    const params = new URLSearchParams(window.location.search);
+    const month = params.get("month");
+
+    document.getElementById('titletxt').innerHTML =
+        `<div class="flex flex-row gap-2 items-center justify-center">Payroll | ${month}</div>`;
+    releasepayrollbtn.onclick = function () {
+
+        if (month) {
+            releasefulltimeparent.classList.remove('hidden');
+            releasefulltimeparent.classList.add('flex');
+
+            const release_form_table = document.getElementById('release_form_table');
+            const tbody = release_form_table.querySelector("tbody");
+            tbody.innerHTML = ""; // clear old rows
+
+            const visibleRows = document
+                .getElementById("search-table")
+                .querySelectorAll("tr");
+
+            console.log(visibleRows);
+            var totalnet = 0;
+
+            visibleRows.forEach((row, i) => {
+                if (i >= 1) { // skip header row
+                    const cells = row.querySelectorAll("td");
+                    const values = Array.from(cells).map(cell => cell.innerText.trim());
+                    console.log(values);
+
+                    // Source table column structure:
+                    // [0] No. | [1] Emp No. | [2] Name | [3] COS | [4] Designation
+                    // [5] Monthly Salary | [6] Total Hours Worked
+                    // [7] Deductions (SSS\nPag-IBIG\nMicrodev) | [8] Net
+
+                    const tr = document.createElement("tr");
+                    tr.className = "odd:bg-white even:bg-gray-50";
+
+                    // No.
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[0]}</td>`;
+
+                    // Emp No.
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[1]}</td>`;
+
+                    // Name
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[2]}</td>`;
+
+                    // COS
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[3]}</td>`;
+
+                    // Designation
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[4]}</td>`;
+
+                    // Monthly Salary
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[5]}</td>`;
+
+                    // Total Hours Worked
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px]">${values[6]}</td>`;
+
+                    // Deductions (SSS, Pag-IBIG, Microdev)
+                    const deductparts = values[7].split("\n").map(s => s.trim());
+                    tr.innerHTML += `
+                        <td class="px-1 py-1 border border-gray-200 text-[10px]">
+                            <div class="flex flex-row justify-between w-full text-gray-600">
+                                <p class="w-1/3 text-center">${deductparts[0] || ''}</p>
+                                <p class="w-1/3 text-center">${deductparts[1] || ''}</p>
+                                <p class="w-1/3 text-center">${deductparts[2] || ''}</p>
+                            </div>
+                        </td>
+                    `;
+
+                    // Net This Period
+                    tr.innerHTML += `<td class="px-1 py-1 border border-gray-200 text-[10px] font-medium">${values[8]}</td>`;
+
+                    const amount = Number(values[8].replace(/[^0-9.-]+/g, ""));
+                    totalnet += amount;
+
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // Total row — colspan 8 to cover first 8 cols, last col for net value
+            const totalRow = document.createElement("tr");
+            totalRow.className = "bg-gray-100 font-semibold";
+
+            const formattedTotal = totalnet.toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            totalRow.innerHTML = `
+                <td class="px-1 py-2 border border-gray-300 text-[10px] font-bold text-right" colspan="8">TOTAL NET:</td>
+                <td class="px-1 py-2 border border-gray-300 text-[10px] font-bold">₱${formattedTotal}</td>
+            `;
+
+            tbody.appendChild(totalRow);
+
+        } else {
+            showToast("error", "Please select a month.");
+        }
+    };
+
+    const disbursementbtn = document.getElementById('disbursementbtn');
+    disbursementbtn.onclick = function() {
+         if (month) {
+            window.location.href = '/attachments/Disbursment Voucher.xlsx';
+        } else {
+            showToast("error", "Please select a month.");
+        }
+    };
+
+    const obligationbtbn = document.getElementById('obligationbtbn');
+    obligationbtbn.onclick = function() {
+        if (month) {
+            window.location.href = '/attachments/Obligation Request.xlsx';
+        } else {
+            showToast("error", "Please select a month.");
+        }
+    };
+
+    const closerealeaseparentbtn = document.getElementById('closerealeaseparentbtn');
+    closerealeaseparentbtn.onclick = function() {
+        releasefulltimeparent.classList.remove('flex');
+        releasefulltimeparent.classList.add('hidden');
+    };
+
+    const { jsPDF } = window.jspdf;
+    function sanitizeColors(node) {
+        node.querySelectorAll("*").forEach(el => {
+            const style = window.getComputedStyle(el);
+
+            if (style.color.includes("oklch")) {
+                el.style.color = "#374151"; // fallback text color
+            }
+            if (style.backgroundColor.includes("oklch")) {
+                el.style.backgroundColor = "#ffffff"; // fallback bg
+            }
+            if (style.borderColor.includes("oklch")) {
+                el.style.borderColor = "#e5e7eb"; // fallback border
+            }
+        });
+    }
+
+    printreleasefullbtn.onclick = function () {
+    const element = document.getElementById("payrollfullprint");
+
+    sanitizeColors(element);
+
+    // Expand full height so dom-to-image captures everything
+    const originalOverflow = element.style.overflow;
+    const originalHeight = element.style.height;
+    element.style.overflow = "visible";
+    element.style.height = "auto";
+
+    const scale = 2; // dom-to-image quality scale
+
+    domtoimage.toPng(element, {
+        width: element.offsetWidth * scale,
+        height: element.scrollHeight * scale,
+        style: {
+            transform: "scale(" + scale + ")",
+            transformOrigin: "top left",
+            width: element.offsetWidth + "px",
+            height: element.scrollHeight + "px"
+        }
+    })
+    .then(dataUrl => {
+        const pdf = new jsPDF("landscape", "pt", "legal");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = function () {
+            const elementWidth = img.width;
+            const elementHeight = img.height;
+
+            // Calculate scale to fit entire content on one page
+            const scaleX = pageWidth / elementWidth;
+            const scaleY = pageHeight / elementHeight;
+            const scale = Math.min(scaleX, scaleY);
+
+            const imgWidth = elementWidth * scale;
+            const imgHeight = elementHeight * scale;
+
+            // Center image on page
+            const x = (pageWidth - imgWidth) / 2;
+            const y = (pageHeight - imgHeight) / 2;
+
+            pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight);
+            pdf.save("payroll.pdf");
+        };
+
+        // Restore original CSS
+        element.style.overflow = originalOverflow;
+        element.style.height = originalHeight;
+    })
+    .catch(error => {
+        console.error("Export failed:", error);
+    });
+};
+
 }
+
+

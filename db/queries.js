@@ -115,7 +115,7 @@ JOIN subjects s ON fl.subject_id = s.id
 ORDER BY fl.id DESC;
 `;
 
-export const GET_ALL_FACULTY_LOADS_BY_ID_QUERY = `
+export const GET_ALL_FACULTY_LOADS_BY_ID = `
   SELECT 
       fl.id,
       e.first_name,

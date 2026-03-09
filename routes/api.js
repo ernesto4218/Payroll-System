@@ -210,48 +210,45 @@ router.post('/update-dtr-record-by-employee-id', async (req, res) => {
     console.log(formFields);
 
     const user = await GET_EMPLOYEE_BY_B_ID(formFields.employee_id);
-
     console.log(user);
 
-    if (user){
+    if (user) {
       const dtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH_DAY_YEAR(user.b_id, formFields.date);
       console.log(dtr);
 
-      if (dtr.length > 1){
-        
+      if (dtr.length > 1) {
         await UPDATE_RECORD_BY_ID(
-          formFields.dtr[0] || "",
-          formFields.dtr[1] || "",
-          formFields.dtr[2] || "",
-          formFields.dtr[3] || "",
+          formFields.dtr[0] || null,
+          formFields.dtr[1] || null,
+          formFields.dtr[2] || null,
+          formFields.dtr[3] || null,
           formFields.date,
           formFields.employee_id,
-        );      
-        
+        );
+
         res.status(200).json({
-            success: true,
-            message: 'Record edited successfully',
+          success: true,
+          message: 'Record edited successfully',
         });
       } else {
         await INSERT_DTR(
           formFields.employee_id,
-          formFields.dtr[0] || "",
-          formFields.dtr[1] || "",
-          formFields.dtr[2] || "",
-          formFields.dtr[3] || "",
+          formFields.dtr[0] || null,
+          formFields.dtr[1] || null,
+          formFields.dtr[2] || null,
+          formFields.dtr[3] || null,
           formFields.date,
         );
 
         res.status(200).json({
-            success: true,
-            message: 'Record added successfully',
+          success: true,
+          message: 'Record added successfully',
         });
       }
-      
     } else {
       res.status(200).json({ message: 'Employee does not exists.' });
     }
-  
+
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ message: 'Error saving data' });

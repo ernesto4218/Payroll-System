@@ -801,12 +801,35 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
         }
     }
 
-
     let currentemployeerecords_table = new simpleDatatables.DataTable("#search-table-records", {
         searchable: false,
         perPageSelect: false
     });
-    
+    let recordInputValues = {};
+
+    document.querySelector("#search-table-records").addEventListener("change", (e) => {
+        if (e.target.type !== "time") return;
+
+        const cell = e.target.closest("td");
+        const row = e.target.closest("tr");
+        if (!cell || !row) return;
+
+        const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+        const cellIndex = Array.from(row.children).indexOf(cell);
+        const key = `${rowIndex}-${cellIndex}`;
+
+        recordInputValues[key] = e.target.value;
+
+        // Also patch the DataTable's stored HTML
+        const rowData = currentemployeerecords_table.data.data[rowIndex];
+        if (!rowData) return;
+
+        const currentHtml = rowData[cellIndex];
+        rowData[cellIndex] = currentHtml.includes('value=')
+            ? currentHtml.replace(/value="[^"]*"/, `value="${e.target.value}"`)
+            : currentHtml.replace('<input ', `<input value="${e.target.value}" `);
+    });
+
     filterdtremployeebtn.addEventListener("click", () => {
         const selectedMonth = monthselectorrecords.value;
         const selectedYear = yearselectorrecords.value;
@@ -845,7 +868,8 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                 console.log(data);
 
                 data.dtr.forEach(dtr => {
-                    const day = new Date(dtr.date).getUTCDate(); 
+                    const localDate = new Date(dtr.date);
+                    const day = localDate.getDate(); // uses local timezone automatically
                     mapByDay[day] = dtr;
                 });
 
@@ -981,9 +1005,8 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                     dtrduplicate.innerHTML = '';
                     totalUndertimeMinutes = 0;
 
-                    // Extract year and month index from selectedMonth, e.g., "August 2025"
                     const [monthName, yearStr] = selectedMonth.split(" ");
-                    const monthIndex = new Date(`${monthName} 1, ${yearStr}`).getMonth(); // 0-based
+                    const monthIndex = new Date(`${monthName} 1, ${yearStr}`).getMonth();
                     const year = parseInt(yearStr);
                     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
                     const selectedperiodtxt = document.getElementById('selectedperiodtxt');
@@ -1001,38 +1024,39 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                         const start = new Date(ev.start);
                         const end = new Date(ev.end);
                         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                            const dateStr = formatLocalDate(d); // use local date
+                            const dateStr = formatLocalDate(d);
                             eventDates.add(dateStr);
                         }
                     });
 
-                    
                     // Loop through all days
                     for (let day = 1; day <= daysInMonth; day++) {
                         const entry = dtrMap[day];
                         console.log("entry: ", entry);
                         const currentDateStr = formatLocalDate(new Date(year, monthIndex, day));
                         const dayOfWeek = new Date(year, monthIndex, day).getDay();
-
                         const tr = document.createElement("tr");
 
-                        if (dayOfWeek === 6 && data.employee.type !== "part-time") { // Saturday
-                            tr.innerHTML = `
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600">${day}</td>
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="4">SATURDAY</td>
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="2">00:00</td>
-                            `;
-                        } else if (dayOfWeek === 0 && data.employee.type !== "part-time") { // Sunday
-                            tr.innerHTML = `
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600">${day}</td>
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="4">SUNDAY</td>
-                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="2">00:00</td>
-                            `;
-                        } else if (eventDates.has(currentDateStr)) { // Weekday with event
-                            // console.log("Event: ", currentDateStr);
-                            // console.log("Events: ", eventDates);
+                        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                        const currentDay = days[dayOfWeek];
+                        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                        const isPartTime = data.employee.type === "part-time";
 
-                            // Get all events for this date
+                        // For part-time: check if there is actual DTR entry data on this weekend day
+                        const hasEntryToday = isPartTime && entry && (
+                            entry.morning_time_in || entry.morning_time_out ||
+                            entry.afternoon_time_in || entry.afternoon_time_out
+                        );
+
+                        // Show red weekend row if: full-time on weekend, OR part-time on weekend with no DTR data
+                        if (isWeekend && !hasEntryToday) {
+                            const dayLabel = dayOfWeek === 6 ? "SATURDAY" : "SUNDAY";
+                            tr.innerHTML = `
+                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600">${day}</td>
+                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="4">${dayLabel}</td>
+                                <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="2">00:00</td>
+                            `;
+                        } else if (eventDates.has(currentDateStr)) {
                             const eventsForDay = data.events.filter(ev => {
                                 const start = new Date(ev.start);
                                 const end = new Date(ev.end);
@@ -1040,7 +1064,6 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                                 return current >= start && current <= end;
                             });
 
-                            // Combine descriptions, max 10 chars
                             let desc = eventsForDay.map(ev => ev.description || "").join(", ");
                             if (desc.length > 20) desc = desc.slice(0, 20) + "...";
 
@@ -1049,28 +1072,22 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                                 <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="4">${desc.toUpperCase()}</td>
                                 <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="2">00:00</td>
                             `;
-                        } else { // Weekdays
-                            if (entry?.message){
+                        } else {
+                            if (entry?.message) {
                                 tr.innerHTML = `
                                     <td class="border-b-2 border-black text-center px-1 py-1 text-red-600">${day}</td>
                                     <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="4">${entry.message.toUpperCase()}</td>
                                     <td class="border-b-2 border-black text-center px-1 py-1 text-red-600" colspan="2">00:00</td>
                                 `;
                             } else {
-
                                 const morning = [
                                     to12HourNoSuffix(entry?.morning_time_in),
                                     to12HourNoSuffix(entry?.morning_time_out)
-                                    ];
-
+                                ];
                                 const afternoon = [
                                     to12HourNoSuffix(entry?.afternoon_time_in),
                                     to12HourNoSuffix(entry?.afternoon_time_out)
                                 ];
-
-                                // console.log("morning: ", morning);
-                                // console.log("afternoon: ", afternoon);
-
 
                                 tr.innerHTML = `
                                     <td class="border-b-2 border-black text-center px-1 py-1">${day}</td>
@@ -1082,13 +1099,10 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                                         ${calculateUndertimeFromArrays(morning, afternoon, data.employee.type, data.load, currentDateStr)}
                                     </td>
                                 `;
-
                             }
                         }
 
                         tbody.appendChild(tr);
-
-                        // console.log(totalUndertimeMinutes);
                     }
 
                     function calculateUndertimeFromArrays(morning, afternoon, type, load, currentDateStr) {
@@ -1103,146 +1117,50 @@ if (document.getElementById("search-table") && typeof simpleDatatables.DataTable
                             return hours * 60 + minutes;
                         }
 
-                        function toMinutes24(timeStr) {
-                            if (!timeStr) return null;
-                            const [h, m, s] = timeStr.split(':').map(Number);
-                            return h * 60 + m;
-                        }
-
-                        // --- get day of week ---
-                        const date = new Date(currentDateStr);
-                        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                        const currentDay = days[date.getDay()];
-
-                        // --- convert logs to minutes ---
                         const morning_in = toMinutes12(morning[0]);
                         const morning_out = toMinutes12(morning[1]);
                         const afternoon_in = toMinutes12(afternoon[0]);
                         const afternoon_out = toMinutes12(afternoon[1]);
 
+                        const official = {
+                            morning_in: toMinutes12('8:00 AM'),
+                            morning_out: toMinutes12('12:00 PM'),
+                            afternoon_in: toMinutes12('1:00 PM'),
+                            afternoon_out: toMinutes12('5:00 PM')
+                        };
+
                         let undertime = 0;
 
-                        // ========================
-                        // PART-TIME TEACHER LOGIC
-                        // ========================
-                        if (type === 'part-time' && Array.isArray(load) && load.length > 0) {
-                            console.log("part time");
-                            // Filter only today's load(s)
-                            const todayLoads = load.filter(l => l.days === currentDay);
-
-                            if (todayLoads.length === 0) {
-                                // No official schedule today → no undertime
-                                return "00:00";
-                            }
-
-                            // Combine all logs into one array (in minutes)
-                            const allLogs = [morning_in, morning_out, afternoon_in, afternoon_out].filter(Boolean);
-
-                            todayLoads.forEach(l => {
-                                const loadStart = toMinutes24(l.start_time);
-                                const loadEnd = toMinutes24(l.end_time);
-                                let loadUndertime = 0;
-
-                                // Find logs within ±60 minutes of this load’s window
-                                const logsWithinLoad = allLogs.filter(t => t >= loadStart - 60 && t <= loadEnd + 60);
-
-                                if (logsWithinLoad.length === 0) {
-                                    // No logs during this load → full load duration is undertime
-                                    loadUndertime = loadEnd - loadStart;
-                                } else {
-                                    const minLog = Math.min(...logsWithinLoad);
-                                    const maxLog = Math.max(...logsWithinLoad);
-
-                                    // Late in
-                                    if (minLog > loadStart) loadUndertime += (minLog - loadStart);
-                                    // Early out
-                                    if (maxLog < loadEnd) loadUndertime += (loadEnd - maxLog);
-                                }
-
-                                undertime += loadUndertime;
-
-                                console.log("Part time load undertime : ", loadUndertime);
-                            });
-
-                        // ========================
-                        // FULL-TIME TEACHER LOGIC
-                        // ========================
+                        const morningComplete = morning_in !== null && morning_out !== null;
+                        if (!morningComplete) {
+                            undertime += 4 * 60;
                         } else {
-                            // const official = {
-                            //     morning_in: toMinutes12('8:00 AM'),
-                            //     morning_out: toMinutes12('12:00 PM'),
-                            //     afternoon_in: toMinutes12('1:00 PM'),
-                            //     afternoon_out: toMinutes12('5:00 PM')
-                            // };
-
-                            // // Morning
-                            // if (morning_in !== null && morning_in > official.morning_in)
-                            //     undertime += morning_in - official.morning_in;
-
-                            // if (morning_out !== null) {
-                            //     if (morning_out < official.morning_out)
-                            //         undertime += official.morning_out - morning_out;
-                            // } else undertime += 4 * 60;
-
-                            // // Afternoon
-                            // if (afternoon_in !== null && afternoon_in > official.afternoon_in)
-                            //     undertime += afternoon_in - official.afternoon_in;
-
-                            // if (afternoon_out !== null) {
-                            //     if (afternoon_out < official.afternoon_out)
-                            //         undertime += official.afternoon_out - afternoon_out;
-                            // } else undertime += 4 * 60;
-
-                            // if (undertime > 8 * 60) undertime = 8 * 60;
-                            const official = {
-                                morning_in: toMinutes12('8:00 AM'),
-                                morning_out: toMinutes12('12:00 PM'),
-                                afternoon_in: toMinutes12('1:00 PM'),
-                                afternoon_out: toMinutes12('5:00 PM')
-                            };
-
-                            // Morning
-                            const morningComplete = morning_in !== null && morning_out !== null;
-
-                            if (!morningComplete) {
-                                // One is missing → whole morning = 4 hours undertime
-                                undertime += 4 * 60;
-                            } else {
-                                // Partial calculation only if both exist
-                                if (morning_in > official.morning_in)
-                                    undertime += morning_in - official.morning_in;
-
-                                if (morning_out < official.morning_out)
-                                    undertime += official.morning_out - morning_out;
-                            }
-
-                            // Afternoon
-                            const afternoonComplete = afternoon_in !== null && afternoon_out !== null;
-
-                            if (!afternoonComplete) {
-                                // One is missing → whole afternoon = 4 hours undertime
-                                undertime += 4 * 60;
-                            } else {
-                                // Partial calculation only if both exist
-                                if (afternoon_in > official.afternoon_in)
-                                    undertime += afternoon_in - official.afternoon_in;
-
-                                if (afternoon_out < official.afternoon_out)
-                                    undertime += official.afternoon_out - afternoon_out;
-                            }
-
-                            // Limit to max of 8 hours total
-                            if (undertime > 8 * 60) undertime = 8 * 60;
-
+                            if (morning_in > official.morning_in)
+                                undertime += morning_in - official.morning_in;
+                            if (morning_out < official.morning_out)
+                                undertime += official.morning_out - morning_out;
                         }
 
-                        // --- format result ---
+                        const afternoonComplete = afternoon_in !== null && afternoon_out !== null;
+                        if (!afternoonComplete) {
+                            undertime += 4 * 60;
+                        } else {
+                            if (afternoon_in > official.afternoon_in)
+                                undertime += afternoon_in - official.afternoon_in;
+                            if (afternoon_out < official.afternoon_out)
+                                undertime += official.afternoon_out - afternoon_out;
+                        }
+
+                        if (undertime > 8 * 60) undertime = 8 * 60;
+
                         const hours = Math.floor(undertime / 60);
                         const minutes = undertime % 60;
 
                         totalUndertimeMinutes += undertime;
                         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                     }
+
+                    // console.log('Total Hours Worked:', minutesToHoursMinutes(totalWorkedMinutes));
 
                     const tr = document.createElement("tr");
                     tr.innerHTML = `

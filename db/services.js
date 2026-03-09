@@ -139,6 +139,7 @@ export async function GET_DTR_MONTHS() {
   return rows;
 }
 
+
 export async function GET_DTR_FILTER_MONTH(month, employee_id) {
   const [rows] = await db.execute(queries.GET_DTR_FILTER_MONTH, [employee_id, month]);
   return rows;
@@ -200,7 +201,7 @@ export async function GET_ALL_FACULTY_LOADS() {
 }
 
 export async function GET_ALL_FACULTY_LOADS_BY_ID(employee_id) {
-  const [result] = await db.execute(queries.GET_ALL_FACULTY_LOADS_BY_ID_QUERY, [employee_id]);
+  const [result] = await db.execute(queries.GET_ALL_FACULTY_LOADS_BY_ID, [employee_id]);
   return result;
 }
 

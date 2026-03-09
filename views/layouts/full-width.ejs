@@ -13,7 +13,7 @@
         <link href="/flowbite/min.css" rel="stylesheet" />
         <script src="/js/components/calendar.js"></script>
     <% } %>
-    <% if (path === '/admin/payroll') { %>
+    <% if (path === '/admin/payroll' || path === '/admin/payroll-part-time') { %>
         <script src="/js/components/html2canvas.min.js"></script>
         <script src="/js/components/jspdf.umd.min.js"></script>
     <% } %>
@@ -67,6 +67,8 @@
             <% } %>
 
             <% if (path === '/admin/payroll-part-time') { %>
+                <%- include('../admin/forms/release_parttime') %>
+
                 <div class="flex w-full h-full flex-row">
                     <%- include('../admin/partials/sidebar') %>
                     <div class="flex flex-col w-screen h-screen overflow-y-auto">

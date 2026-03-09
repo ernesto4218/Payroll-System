@@ -1,6 +1,6 @@
 import express from 'express';
 import { formatDate, generateAuthToken, hashPassword } from './helpers.js';
-import { 
+import {
   GET_ALL_EMPLOYEE,
   GET_ALL_UPLOADED_FILES,
   GET_DTR_FILTER_MONTH_PAYROLL,
@@ -54,9 +54,28 @@ router.get('/dashboard', async (req, res) => {
   const now = new Date();
 
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
+
+  // ========================
+  // HELPERS (MATCH PAYROLL)
+  // ========================
+  const formatLocalDate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const toMinutes = (timeStr) => {
+    if (!timeStr) return null;
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (period === 'AM' && hours === 12) hours = 0;
+    if (period === 'PM' && hours !== 12) hours += 12;
+    return hours * 60 + minutes;
+  };
 
   let data = {
     title: "Dashboard",
@@ -86,25 +105,39 @@ router.get('/dashboard', async (req, res) => {
     em.date_added = formatDate(em.date_added);
   });
 
-  // monthly payroll
+  // ========================
+  // MONTHLY PAYROLL
+  // ========================
   for (const monthName of months) {
     const month = `${monthName} ${year}`;
     const hasDTR = data.dtrmonths_data.some(row => row.month_year === month);
     if (!hasDTR) {
-      // No DTR for this month → Zero payroll
       data.monthlyPayroll[month] = 0;
-      continue; 
+      continue;
     }
 
-
-    const employees = await GET_ALL_EMPLOYEE();
+    // Filter full-time only (match payroll route)
+    let employees = await GET_ALL_EMPLOYEE();
+    employees = employees.filter(em => em.type === 'full-time');
 
     let total_payroll = 0;
-    let daysInMonth = 0;
-    let monthNameOnly;
-    let yearStr;
 
     const events_month = await GET_EVENTS_MONTH(month);
+
+    // Build event date set (match payroll route)
+    const eventDates = new Set();
+    events_month.forEach(ev => {
+      const start = new Date(ev.start);
+      const end = new Date(ev.end);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        eventDates.add(formatLocalDate(new Date(d)));
+      }
+    });
+
+    const [mName, yStr] = month.split(" ");
+    const yy = parseInt(yStr);
+    const mm = new Date(`${mName} 1, ${yy}`).getMonth();
+    const daysInMonth = new Date(yy, mm + 1, 0).getDate();
 
     for (let employee of employees) {
       employee.absent = 0;
@@ -113,19 +146,6 @@ router.get('/dashboard', async (req, res) => {
 
       const dtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH(empId, month);
       let totalUndertime = 0;
-
-      const eventRanges = events_month.map(ev => ({
-        start: new Date(ev.start),
-        end: new Date(ev.end)
-      }));
-
-      const [mName, yStr] = month.split(" ");
-      monthNameOnly = mName;
-      yearStr = yStr;
-
-      const yy = parseInt(yearStr);
-      const mm = new Date(`${monthNameOnly} 1, ${yy}`).getMonth();
-      daysInMonth = new Date(yy, mm + 1, 0).getDate();
 
       const dtrMap = {};
       dtr.forEach(entry => {
@@ -138,19 +158,19 @@ router.get('/dashboard', async (req, res) => {
         const dayOfWeek = date.getDay();
         const entry = dtrMap[day];
 
+        // Skip weekends
         if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-        const isEventDay = eventRanges.some(ev => date >= ev.start && date <= ev.end);
-        if (isEventDay) continue;
+        // Skip event days (match payroll route)
+        const currentDateStr = formatLocalDate(date);
+        if (eventDates.has(currentDateStr)) continue;
 
-        const toMinutes = (timeStr) => {
-          if (!timeStr) return null;
-          const [time, period] = timeStr.split(' ');
-          let [hours, minutes] = time.split(':').map(Number);
-          if (period === 'AM' && hours === 12) hours = 0;
-          if (period === 'PM' && hours !== 12) hours += 12;
-          return hours * 60 + minutes;
-        };
+        // Absent whole day
+        if (!entry || entry.message === 'ABSENT') {
+          totalUndertime += 8 * 60;
+          employee.absent++;
+          continue;
+        }
 
         const official = {
           morning_in: toMinutes('8:00 AM'),
@@ -159,66 +179,64 @@ router.get('/dashboard', async (req, res) => {
           afternoon_out: toMinutes('5:00 PM')
         };
 
-        let undertime = 0;
-
-        if (!entry || entry.message === 'ABSENT') {
-          undertime = 8 * 60;
-          totalUndertime += undertime;
-          employee.absent++;
-          continue;
-        }
-
-        const hasMorning = entry.morning_time_in || entry.morning_time_out;
-        const hasAfternoon = entry.afternoon_time_in || entry.afternoon_time_out;
-
-        if ((hasMorning && !hasAfternoon) || (!hasMorning && hasAfternoon)) {
-          undertime = 4 * 60;
-          totalUndertime += undertime;
-          continue;
-        }
-
         const morning_in = toMinutes(entry.morning_time_in);
         const morning_out = toMinutes(entry.morning_time_out);
         const afternoon_in = toMinutes(entry.afternoon_time_in);
         const afternoon_out = toMinutes(entry.afternoon_time_out);
 
-        if (morning_in && morning_in > official.morning_in)
-          undertime += morning_in - official.morning_in;
+        let undertime = 0;
 
-        if (morning_out && morning_out < official.morning_out)
-          undertime += official.morning_out - morning_out;
-        else if (!morning_out)
+        // Morning
+        const morningComplete = morning_in !== null && morning_out !== null;
+        if (!morningComplete) {
           undertime += 4 * 60;
+        } else {
+          if (morning_in > official.morning_in)
+            undertime += morning_in - official.morning_in;
+          if (morning_out < official.morning_out)
+            undertime += official.morning_out - morning_out;
+        }
 
-        if (afternoon_in && afternoon_in > official.afternoon_in)
-          undertime += afternoon_in - official.afternoon_in;
-
-        if (afternoon_out && afternoon_out < official.afternoon_out)
-          undertime += official.afternoon_out - afternoon_out;
-        else if (!afternoon_out)
+        // Afternoon
+        const afternoonComplete = afternoon_in !== null && afternoon_out !== null;
+        if (!afternoonComplete) {
           undertime += 4 * 60;
+        } else {
+          if (afternoon_in > official.afternoon_in)
+            undertime += afternoon_in - official.afternoon_in;
+          if (afternoon_out < official.afternoon_out)
+            undertime += official.afternoon_out - afternoon_out;
+        }
+
+        // Cap to 8h
+        if (undertime > 8 * 60) undertime = 8 * 60;
 
         totalUndertime += undertime;
       }
 
-      employee.totalUndertimeMinutes = totalUndertime - (8 * 60);
-      employee.daily_salary = employee.monthly_salary / daysInMonth;
+      // Final computation (match payroll route exactly)
+      employee.totalUndertimeMinutes = totalUndertime;
+      employee.daily_salary = Number(employee.monthly_salary) / daysInMonth;
       employee.hourly_salary = employee.daily_salary / 8;
       employee.minutes_salary = employee.hourly_salary / 60;
 
       employee.undertimeAmount = employee.totalUndertimeMinutes * employee.minutes_salary;
-      employee.salaryGross = employee.monthly_salary - employee.undertimeAmount;
+      employee.salaryGross = Number(employee.monthly_salary) - employee.undertimeAmount;
 
       employee.netpay =
         employee.salaryGross -
-        (Number(employee.microdev) + Number(employee.pagibig) + Number(employee.sss));
+        (Number(employee.microdev || 0) +
+          Number(employee.pagibig || 0) +
+          Number(employee.sss || 0));
 
       total_payroll += employee.netpay;
+      console.log(employee);
     }
 
     console.log(month, " ", total_payroll);
     data.monthlyPayroll[month] = total_payroll;
   }
+
   res.render('admin/dashboard', data);
 });
 
@@ -394,8 +412,8 @@ router.get('/payroll', async (req, res) => {
         employee.netpay =
           employee.salaryGross -
           (Number(employee.microdev || 0) +
-           Number(employee.pagibig || 0) +
-           Number(employee.sss || 0));
+            Number(employee.pagibig || 0) +
+            Number(employee.sss || 0));
 
         total_payroll += employee.netpay;
       }
@@ -422,8 +440,8 @@ function minutesToHHMM(totalMinutes) {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }
 
-
 router.get('/payroll-part-time', async (req, res) => {
+
   const parseTime12 = (timeStr) => {
     if (!timeStr) return null;
     const [time, period] = timeStr.split(' ');
@@ -435,128 +453,241 @@ router.get('/payroll-part-time', async (req, res) => {
 
   const parseTime24 = (timeStr) => {
     if (!timeStr) return null;
-    const [h, m, s] = timeStr.split(':').map(Number);
+    const [h, m] = timeStr.split(':').map(Number);
     return h * 60 + m;
   };
 
-  // Calculate undertime based on DTR and loads
-  function calculateUndertime(dtr, type, loads, currentDateStr) {
-    const date = new Date(currentDateStr);
-    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    const currentDay = days[date.getDay()];
-
-    const morning = [dtr.morning_time_in, dtr.morning_time_out];
-    const afternoon = [dtr.afternoon_time_in, dtr.afternoon_time_out];
-    const morning_in = parseTime12(morning[0]);
-    const morning_out = parseTime12(morning[1]);
-    const afternoon_in = parseTime12(afternoon[0]);
-    const afternoon_out = parseTime12(afternoon[1]);
-
-    let undertime = 0;
-
-    // ========================
-    // PART-TIME TEACHER LOGIC
-    // ========================
-    if (type === 'part-time' && Array.isArray(loads) && loads.length > 0) {
-      const todayLoads = loads.filter(l => 
-        l.days.split(',').map(d => d.trim().toUpperCase()).includes(currentDay)
-      );
-
-      if (todayLoads.length === 0) return 0; // no schedule today → no undertime
-
-      const allLogs = [morning_in, morning_out, afternoon_in, afternoon_out].filter(Boolean);
-
-      todayLoads.forEach(l => {
-        const loadStart = parseTime24(l.start_time);
-        const loadEnd = parseTime24(l.end_time);
-        let loadUndertime = 0;
-
-        const logsWithinLoad = allLogs.filter(t => t >= loadStart - 60 && t <= loadEnd + 60);
-
-        if (logsWithinLoad.length === 0) {
-          loadUndertime = loadEnd - loadStart;
-        } else {
-          const minLog = Math.min(...logsWithinLoad);
-          const maxLog = Math.max(...logsWithinLoad);
-
-          if (minLog > loadStart) loadUndertime += (minLog - loadStart);
-          if (maxLog < loadEnd) loadUndertime += (loadEnd - maxLog);
-        }
-
-        undertime += loadUndertime;
-      });
-    }
-
-    return undertime;
-  }
-
-  // --- main payroll logic ---
-  const month = req.query.month;
-  const data = {
-    title: "Payroll Part Time",
-    name: req.name,
-    employees: await GET_ALL_EMPLOYEE(),
-    dtrmonths: await GET_DTR_MONTHS(),
-    today: new Date().toDateString(),
+  const formatLocalDate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   };
 
-  data.employees = data.employees.filter(em => em.type === "part-time");
-  data.employees.forEach(em => em.date_added = formatDate(em.date_added));
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-  if (month) {
-    for (const employee of data.employees) {
-      const loads = await GET_ALL_FACULTY_LOADS_BY_ID(employee.id);
-      const employeedtr = await GET_DTR_FILTER_MONTH(month, employee.id);
-
-      let totalWorkedMinutes = 0;
-      let totalUndertimeMinutes = 0;
-
-      for (const dtr of employeedtr) {
-        const dtrDate = dtr.date;
-
-        // get all loads for this DTR day
-        const dayLoads = loads.filter(l =>
-          l.days.split(',').map(d => d.trim().toUpperCase()).includes(
-            new Date(dtrDate).toLocaleString('en-US', { weekday: 'short' }).toUpperCase()
-          )
-        );
-
-        // --- Calculate undertime for this date ---
-        const undertimeMinutes = calculateUndertime(dtr, employee.type, dayLoads, dtrDate);
-        totalUndertimeMinutes += undertimeMinutes;
-
-        // --- Calculate actual worked hours (same logic as before) ---
-        let dayWorkedMinutes = 0;
-        for (const load of dayLoads) {
-          const start = parseTime24(load.start_time);
-          const end = parseTime24(load.end_time);
-          const loadDuration = end - start;
-          dayWorkedMinutes += loadDuration - undertimeMinutes;
-        }
-
-        totalWorkedMinutes += Math.max(0, dayWorkedMinutes);
-      }
-
-      const hours = Math.floor(totalWorkedMinutes / 60);
-      const minutes = totalWorkedMinutes % 60;
-
-      employee.totalHoursWorked = `${hours}:${minutes.toString().padStart(2, "0")}`;
-      const decimalHours = totalWorkedMinutes / 60;
-      const hourlyRate = parseFloat(employee.hourly_salary) || 0;
-      employee.totalPay = (decimalHours * hourlyRate).toFixed(2);
-
-      const deductions = Number(employee.sss) + Number(employee.pagibig) + Number(employee.microdev);
-      employee.netpay = (decimalHours * hourlyRate - deductions).toFixed(2);
-
-      // Optional: store undertime separately for display
-      const uHours = Math.floor(totalUndertimeMinutes / 60);
-      const uMinutes = totalUndertimeMinutes % 60;
-      employee.totalUndertime = `${uHours}:${uMinutes.toString().padStart(2, '0')}`;
-    }
+  /**
+   * Check if a DTR pair (in/out) falls within a load window.
+   * Uses a 60-min tolerance to handle slight clock-in variations.
+   */
+  function pairMatchesLoad(pairIn, pairOut, loadStart, loadEnd) {
+    if (pairIn === null || pairOut === null) return false;
+    return pairIn <= loadEnd + 60 && pairOut >= loadStart - 60;
   }
 
-  console.log(data.employees);
-  res.render("admin/payroll", data);
+  /**
+   * Clip the actual time_in/time_out to the load window
+   * and return worked minutes within that window.
+   */
+  function getClippedMinutes(pairIn, pairOut, loadStart, loadEnd) {
+    const clippedIn  = Math.max(pairIn,  loadStart);
+    const clippedOut = Math.min(pairOut, loadEnd);
+    return Math.max(0, clippedOut - clippedIn);
+  }
+
+  /**
+   * Given a load window and a DTR record,
+   * find which DTR pair (morning or afternoon) matches the load window.
+   * DTR times are in 24hr format (e.g. '08:35:00').
+   * Returns actual clipped worked minutes within the load window.
+   */
+  function getWorkedMinutesForLoad(dtr, loadStart, loadEnd) {
+    // ✅ DTR times are 24hr format — use parseTime24
+    const morningIn    = parseTime24(dtr.morning_time_in);
+    const morningOut   = parseTime24(dtr.morning_time_out);
+    const afternoonIn  = parseTime24(dtr.afternoon_time_in);
+    const afternoonOut = parseTime24(dtr.afternoon_time_out);
+
+    // Try morning pair first
+    if (pairMatchesLoad(morningIn, morningOut, loadStart, loadEnd)) {
+      return getClippedMinutes(morningIn, morningOut, loadStart, loadEnd);
+    }
+
+    // Try afternoon pair
+    if (pairMatchesLoad(afternoonIn, afternoonOut, loadStart, loadEnd)) {
+      return getClippedMinutes(afternoonIn, afternoonOut, loadStart, loadEnd);
+    }
+
+    // No matching pair → absent for this load → no pay
+    return 0;
+  }
+
+  /**
+   * Calculate undertime in minutes for a single load window vs actual DTR.
+   * Undertime = scheduled load duration - actual clipped worked minutes.
+   */
+  function getUndertimeForLoad(dtr, loadStart, loadEnd) {
+    const scheduledMinutes = loadEnd - loadStart;
+    const workedMinutes = getWorkedMinutesForLoad(dtr, loadStart, loadEnd);
+    return Math.max(0, scheduledMinutes - workedMinutes);
+  }
+
+  try {
+    const month = req.query.month;
+
+    let data = {
+      title: "Payroll Part Time",
+      name: req.name,
+      employees: await GET_ALL_EMPLOYEE(),
+      dtrmonths: all_months,
+      dtryears: all_years,
+      totalPayroll: 0,
+      today: new Date().toDateString(),
+    };
+
+    data.employees = data.employees.filter(em => em.type === "part-time");
+    data.employees.forEach(em => em.date_added = formatDate(em.date_added));
+
+    if (month) {
+
+      // ========================
+      // PARSE MONTH "January 2026"
+      // ========================
+      const [monthName, yearStr] = month.split(" ");
+      const year = parseInt(yearStr);
+      const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+      // ========================
+      // BUILD ALL DATES IN MONTH
+      // ========================
+      const allDatesInMonth = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, monthIndex, day);
+        const dateStr = formatLocalDate(dateObj);
+        allDatesInMonth.push({ dateStr, dateObj });
+      }
+
+      // ========================
+      // BUILD HOLIDAY / EVENT DATE SET
+      // ========================
+      const events_month = await GET_EVENTS_MONTH(month);
+      const eventDates = new Set();
+      events_month.forEach(ev => {
+        const start = new Date(ev.start);
+        const end   = new Date(ev.end);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          eventDates.add(formatLocalDate(new Date(d)));
+        }
+      });
+
+      let total_payroll = 0;
+
+      // ========================
+      // EMPLOYEE LOOP
+      // ========================
+      for (const employee of data.employees) {
+
+        const empId = employee.b_id;
+        if (!empId) continue;
+
+        const loads = await GET_ALL_FACULTY_LOADS_BY_ID(employee.id);
+        const employeedtr = await GET_DTR_BY_EMPLOYEE_AND_MONTH(empId, month);
+
+        // Map DTR records by date string for quick lookup
+        const dtrByDate = {};
+        for (const dtr of employeedtr) {
+          const key = formatLocalDate(new Date(dtr.date));
+          dtrByDate[key] = dtr;
+        }
+
+        let totalWorkedMinutes   = 0;
+        let totalUndertimeMinutes = 0;
+        let totalAbsentMinutes   = 0;
+
+        // ========================
+        // DAY LOOP
+        // ========================
+        for (const { dateStr, dateObj } of allDatesInMonth) {
+
+          // Skip holidays/events
+          if (eventDates.has(dateStr)) continue;
+
+          const currentDay = days[dateObj.getDay()];
+
+          // Get loads scheduled for this day of the week
+          const dayLoads = loads.filter(l =>
+            l.days.split(',').map(d => d.trim().toUpperCase()).includes(currentDay)
+          );
+
+          if (dayLoads.length === 0) continue; // no schedule this day
+
+          const dtr = dtrByDate[dateStr];
+
+          // ========================
+          // LOAD LOOP
+          // ========================
+          for (const load of dayLoads) {
+            const loadStart       = parseTime24(load.start_time);
+            const loadEnd         = parseTime24(load.end_time);
+            const scheduledMinutes = loadEnd - loadStart;
+
+            if (!dtr || (
+              !dtr.morning_time_in  &&
+              !dtr.morning_time_out &&
+              !dtr.afternoon_time_in &&
+              !dtr.afternoon_time_out
+            )) {
+              // Fully absent for this load
+              totalAbsentMinutes    += scheduledMinutes;
+              totalUndertimeMinutes += scheduledMinutes;
+              continue;
+            }
+
+            const workedMinutes   = getWorkedMinutesForLoad(dtr, loadStart, loadEnd);
+            const undertimeMinutes = getUndertimeForLoad(dtr, loadStart, loadEnd);
+
+            totalWorkedMinutes    += workedMinutes;
+            totalUndertimeMinutes += undertimeMinutes;
+          }
+        }
+
+        // ========================
+        // FINAL COMPUTATION
+        // ========================
+        const workedHours = Math.floor(totalWorkedMinutes / 60);
+        const workedMins  = totalWorkedMinutes % 60;
+        employee.totalHoursWorked = `${workedHours}:${workedMins.toString().padStart(2, '0')}`;
+
+        const uHours = Math.floor(totalUndertimeMinutes / 60);
+        const uMins  = totalUndertimeMinutes % 60;
+        employee.totalUndertime          = `${uHours}:${uMins.toString().padStart(2, '0')}`;
+        employee.totalUndertimeFormatted = employee.totalUndertime; // ✅ for template
+
+        const decimalHours = totalWorkedMinutes / 60;
+        const hourlyRate   = parseFloat(employee.hourly_salary) || 0;
+
+        // Undertime amount = undertime hours × hourly rate
+        const undertimeDecimalHours  = totalUndertimeMinutes / 60;
+        employee.undertimeAmount     = (undertimeDecimalHours * hourlyRate).toFixed(2); // ✅ for template
+
+        employee.totalPay    = (decimalHours * hourlyRate).toFixed(2);
+        employee.salaryGross = employee.totalPay; // ✅ for template (gross = total pay before deductions)
+
+        const deductions =
+          Number(employee.sss      || 0) +
+          Number(employee.pagibig  || 0) +
+          Number(employee.microdev || 0);
+
+        employee.netpay = (decimalHours * hourlyRate - deductions).toFixed(2);
+
+        total_payroll += parseFloat(employee.netpay);
+      }
+
+      data.monthDuration = `${monthName} 1-${daysInMonth} ${yearStr}`;
+      data.daysInMonth   = daysInMonth;
+      data.totalPayroll  = total_payroll;
+      console.log("TOtal Payroll: ", total_payroll);
+
+      // await UPDATE_PAYROLL_LATEST(total_payroll, month);
+    }
+
+    res.render("admin/payroll_parttime", data);
+
+  } catch (error) {
+    console.error("Payroll Part-Time Error:", error);
+    res.status(500).send("Server Error");
+  }
 });
 
 
@@ -570,9 +701,9 @@ router.get('/employees', async (req, res) => {
     dtryear: all_years,
     today: (new Date()).toDateString(),
   }
-  
+
   data.employees.forEach(em => {
-    em.date_added = formatDate(em.date_added);  
+    em.date_added = formatDate(em.date_added);
   });
 
   res.render('admin/employees', data);
@@ -589,11 +720,11 @@ router.get('/facultyload', async (req, res) => {
     loads: await GET_ALL_FACULTY_LOADS(),
     today: (new Date()).toDateString(),
   }
-  
+
   data.employees.forEach(em => {
-    em.date_added = formatDate(em.date_added);  
+    em.date_added = formatDate(em.date_added);
   });
-  
+
 
   data.loads.forEach(load => {
     const to12Hour = (time) => {
@@ -610,7 +741,7 @@ router.get('/facultyload', async (req, res) => {
 
 
   console.log(data);
-  
+
   res.render('admin/facultyload', data);
 });
 
@@ -629,7 +760,7 @@ router.get('/uploads', async (req, res) => {
   });
 
   // console.log(data);
-  
+
   res.render('admin/uploads', data);
 });
 
@@ -643,14 +774,14 @@ router.get('/calendar', async (req, res) => {
   }
 
   console.log(data);
-  
+
   res.render('admin/calendar', data);
 });
 // router.post('/', async (req, res) => {
 //   const { param } = req.body;
 
 //   try {
-    
+
 //   } catch (error) {
 //     console.error('AI error:', error);
 //     res.status(500).json({ error: 'Failed to generate response' });
